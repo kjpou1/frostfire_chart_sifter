@@ -2,6 +2,7 @@ import os
 import sys
 from src.services.data_ingestion_service import DataIngestionService
 from src.services.data_transformation_service import DataTransformationService
+from src.services.dataset_splitter_service import DatasetSplitterService
 from src.services.hugging_face_service import HuggingFaceService
 from src.services.model_selection_service import ModelSelectionService
 from src.utils.file_utils import save_object
@@ -16,12 +17,10 @@ class TrainPipeline:
         self.data_ingestion_service = DataIngestionService()
         self.data_transformation_service = DataTransformationService()
         self.model_selection_service = ModelSelectionService()
-        self.huggingface_service = HuggingFaceService()
 
     def run_pipeline(self):
         try:
 
-            self.huggingface_service.initiate_download()
             # Step 1: Data Ingestion
             logging.info("Starting data ingestion.")
             train_path, test_path = (

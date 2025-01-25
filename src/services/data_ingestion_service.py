@@ -8,6 +8,8 @@ from sklearn.model_selection import train_test_split
 from src.exception import CustomException
 from src.logger_manager import LoggerManager
 from src.models.data_ingestion_config import DataIngestionConfig
+from src.services.dataset_splitter_service import DatasetSplitterService
+from src.services.hugging_face_service import HuggingFaceService
 
 logging = LoggerManager.get_logger(__name__)
 
@@ -23,6 +25,8 @@ class DataIngestionService:
         Initializes the DataIngestion class by creating an instance of the DataIngestionConfig.
         """
         self.ingestion_config = DataIngestionConfig()
+        self.huggingface_service = HuggingFaceService()
+        self.dataset_splitter_service = DatasetSplitterService()
 
     def initiate_data_ingestion(self, test_size=0.2):
         """
@@ -42,6 +46,10 @@ class DataIngestionService:
         """
         logging.info("Entered the data ingestion method or component.")
         try:
+
+            self.huggingface_service.initiate_download()
+            self.dataset_splitter_service.initiate_split()
+
             # Check if the input data file exists
             if not os.path.exists(self.ingestion_config.input_data_path):
                 logging.error(
