@@ -43,11 +43,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="ml_project_template",
+    name="frostfire_chart_sifter",
     version="0.0.1",
     author="kjpou1",
     author_email="wasssssuuuuupppp@gmail.com",
-    description="A modular and production-ready template for ML projects.",
+    description="A machine learning project that leverages CNNs to classify images as charts or non-charts. Featuring scalable pipelines for training and evaluating models on diverse datasets, it’s ideal for financial engineers, traders, and developers seeking automated chart detection.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
@@ -58,10 +58,10 @@ setup(
         "Operating System :: OS Independent",
     ],
     keywords="machine learning template production-ready",
-    url="https://github.com/kjpou1/ml_project_template",
+    url="https://github.com/kjpou1/frostfire_chart_sifter",
     project_urls={
-        "Bug Tracker": "https://github.com/kjpou1/ml_project_template/issues",
-        "Documentation": "https://github.com/kjpou1/ml_project_template",
+        "Bug Tracker": "https://github.com/kjpou1/frostfire_chart_sifter/issues",
+        "Documentation": "https://github.com/kjpou1/frostfire_chart_sifter",
     },
     python_requires=">=3.7",
 )
