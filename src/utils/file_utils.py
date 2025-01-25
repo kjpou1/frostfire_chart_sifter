@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -46,3 +47,13 @@ def load_object(file_path):
 
     except Exception as e:
         raise CustomException(e, sys) from e
+
+
+def load_metadata(file_path: str):
+    with open(file_path, "r") as f:
+        return json.load(f)
+
+
+def save_metadata(file_path: str, meta_data: str):
+    with open(file_path, "w") as f:
+        json.dump(meta_data, f, indent=4)

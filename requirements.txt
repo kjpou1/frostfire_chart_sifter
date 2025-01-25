@@ -16,4 +16,9 @@ uvicorn
 httpx
 jinja2
 python-multipart
+tensorflow
+Pillow
+ipywidgets
+datasets
+huggingface_hub
 -e .
