@@ -1,5 +1,31 @@
-# ml_project_template
-A scalable and modular template for machine learning projects, featuring CI/CD integration, configuration management, robust testing, Dockerization, and comprehensive documentation. Ideal for production-ready ML workflows.
+# Frostfire_Chart_Sifter
+
+**Frostfire_Chart_Sifter** is a cutting-edge machine learning project designed to classify images as either **charts** or **non-charts**. Leveraging Convolutional Neural Networks (CNNs), it provides a robust solution for automated chart detection. Whether you’re a financial engineer, trader, or developer, this project offers tools to seamlessly integrate chart recognition into your workflow.
+
+### Key Features:
+- **Binary Classification**: Differentiates between chart images (e.g., stock or crypto price charts) and non-chart images.
+- **Pipeline Architecture**: Includes modular pipelines for data preprocessing, model training, evaluation, and inference.
+- **Custom and Pre-trained Models**: Use pre-trained models for faster deployment or train custom models for tailored use cases.
+- **Diverse Dataset Support**: Compatible with various datasets, including stock market charts, crypto charts, and unrelated images for robust classification.
+- **Scalability**: Designed for experimentation and easy integration into production workflows.
+
+### Why Frostfire_Chart_Sifter?
+1. **Efficiency**: Automates chart detection, saving time and reducing manual effort.
+2. **Flexibility**: Customizable architecture supports multiple datasets and models.
+3. **Precision**: Achieves high accuracy in distinguishing charts from non-charts using advanced CNN architectures.
+
+### Getting Started
+Follow the setup instructions to:
+1. **Prepare Data**: Organize datasets for charts and non-charts.
+2. **Train Models**: Use provided pipelines for training and validation.
+3. **Deploy Models**: Integrate into your systems for real-time or batch predictions.
+
+### Applications
+- **Automated Data Filtering**: Identify chart images in large datasets.
+- **Financial Research**: Quickly extract and organize financial charts.
+- **AI-Driven Workflows**: Enhance systems requiring visual data analysis.
+
+For more details, explore the repository documentation and examples.
 
 ---
 ## Table of Contents
