@@ -205,11 +205,8 @@ def load_datasets_from_directory(
                 logging.error(f"File not found: {image_path.numpy().decode('utf-8')}")
                 return None, None
 
-        combined_dataset = (
-            combined_dataset.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
-            .shuffle(buffer_size=1000)
-            .batch(batch_size)
-            .prefetch(tf.data.AUTOTUNE)
+        combined_dataset = combined_dataset.map(
+            preprocess, num_parallel_calls=tf.data.AUTOTUNE
         )
         logging.info(f"Dataset loaded successfully from directory: {data_dir}")
         return combined_dataset
