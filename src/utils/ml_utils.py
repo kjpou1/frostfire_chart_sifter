@@ -119,9 +119,9 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/mobilenetv3_classifier.keras"
+        file_name = "mobilenetv3_classifier.keras"
 
-    if model_type == "mobile_large":
+    elif model_type == "mobile_large":
         # Load the MobileNetV3 model
         base_model = MobileNetV3Large(
             input_shape=input_shape,
@@ -143,7 +143,7 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/mobilenetv3large_classifier.keras"
+        file_name = "mobilenetv3large_classifier.keras"
 
     elif model_type == "custom-1":
         model = models.Sequential(
@@ -166,7 +166,7 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/custom1_classifier.keras"
+        file_name = "custom1_classifier.keras"
 
     elif model_type == "custom-mobile":
         # Load the MobileNetV3 model
@@ -198,7 +198,7 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/custom_mobilenetv3_classifier.keras"
+        file_name = "custom_mobilenetv3_classifier.keras"
 
     elif model_type == "efficientnet":
         base_model = EfficientNetB0(
@@ -221,7 +221,7 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/efficientnet_classifier.keras"
+        file_name = "efficientnet_classifier.keras"
 
     elif model_type == "resnet":
         base_model = ResNet50(
@@ -244,7 +244,7 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/resnet_classifier.keras"
+        file_name = "resnet_classifier.keras"
     elif model_type == "densenet":
         base_model = DenseNet121(
             input_shape=input_shape,
@@ -266,7 +266,7 @@ def create_model(model_type, input_shape=(224, 224, 3)):
             loss="binary_crossentropy",
             metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
         )
-        file_name = "../models/densenet_classifier.keras"
+        file_name = "densenet_classifier.keras"
     else:
         raise ValueError(
             f"Unsupported model type: {model_type}. Supported types are 'mobile', 'custom-1', 'efficientnet', 'resnet', and 'densenet'."

@@ -29,6 +29,9 @@ class Config(metaclass=SingletonMeta):
         self.SHUFFLE_BUFFER_SIZE = 1000
         self.PREFETCH_BUFFER_SIZE = tf.data.AUTOTUNE
 
+        # Epoch for training
+        self.EPOCHS = 35
+
         # Base directory for artifacts
         self.BASE_DIR = os.getenv("BASE_DIR", "artifacts")
 
@@ -41,6 +44,8 @@ class Config(metaclass=SingletonMeta):
         self.METADATA_DIR = os.path.join(self.BASE_DIR, "metadata")
         self.METADATA_FILE_PATH = os.path.join(self.METADATA_DIR, "metadata.json")
         self.REPORTS_DIR = os.path.join(self.BASE_DIR, "reports")
+        # History Directory
+        self.HISTORY_DIR = os.path.join(self.BASE_DIR, "history")
 
         # Ensure all necessary directories exist
         self._ensure_directories_exist()
@@ -60,6 +65,7 @@ class Config(metaclass=SingletonMeta):
             self.LOG_DIR,
             self.METADATA_DIR,
             self.REPORTS_DIR,
+            self.HISTORY_DIR,
         ]
         for directory in directories:
             os.makedirs(directory, exist_ok=True)

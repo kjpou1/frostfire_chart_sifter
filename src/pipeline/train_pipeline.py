@@ -1,7 +1,10 @@
 import os
 import sys
+import uuid
+from datetime import datetime
 
 import numpy as np
+import tensorflow as tf
 
 from src.config.config import Config
 from src.exception import CustomException
@@ -11,7 +14,7 @@ from src.services.data_transformation_service import DataTransformationService
 from src.services.dataset_splitter_service import DatasetSplitterService
 from src.services.hugging_face_service import HuggingFaceService
 from src.services.model_selection_service import ModelSelectionService
-from src.utils.file_utils import save_object
+from src.utils.file_utils import save_json, save_object, save_training_artifacts
 from src.utils.ml_utils import create_model
 
 logging = LoggerManager.get_logger(__name__)
@@ -76,7 +79,7 @@ class TrainPipeline:
 
             # Step 3: Model Training and Selection
             logging.info("Starting model training and selection.")
-            model, model_file_name = create_model("mobile_large")
+            model, model_file_name = create_model("mobile")
 
             # Model summary
             logging.info(model.summary())
@@ -100,6 +103,47 @@ class TrainPipeline:
             test_dataset_final = test_dataset_scaled.cache().prefetch(
                 self.config.PREFETCH_BUFFER_SIZE
             )  # Use constant from Config
+
+            save_checkpoint = tf.keras.callbacks.ModelCheckpoint(
+                filepath=os.path.join(self.config.MODEL_DIR, model_file_name),
+                monitor="val_loss",
+                save_best_only=True,
+                verbose=1,
+            )
+            EPOCHS = self.config.EPOCHS
+            history = model.fit(
+                train_dataset_final,
+                validation_data=validation_dataset_final,
+                epochs=EPOCHS,
+                callbacks=[
+                    tf.keras.callbacks.EarlyStopping(
+                        patience=3, restore_best_weights=True
+                    ),
+                    save_checkpoint,
+                ],
+                verbose=1,
+            )
+            # Generate metadata and run ID
+            metadata = {
+                "model_name": "MobileNetV3",
+                "epochs": EPOCHS,
+                "batch_size": self.config.BATCH_SIZE,
+                "shuffle_buffer_size": self.config.SHUFFLE_BUFFER_SIZE,
+                "prefetch_buffer_size": self.config.PREFETCH_BUFFER_SIZE,
+                "early_stopping_patience": 3,
+                "dataset_details": {
+                    "train_size": str(train_dataset_final),
+                    "val_size": str(validation_dataset_final),
+                    "test_size": str(test_dataset_final),
+                },
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            run_id = (
+                datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + str(uuid.uuid4())[:8]
+            )
+
+            # Save history and metadata
+            save_training_artifacts(history, metadata, run_id)
 
             results = {}
             # results = self.model_selection_service.initiate_model_trainer(
