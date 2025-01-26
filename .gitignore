@@ -178,3 +178,4 @@ logs/
 
 # Ignore artifacts directory
 **/artifacts/*
+notebook/models/*
