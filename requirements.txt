@@ -21,4 +21,5 @@ Pillow
 ipywidgets
 datasets
 huggingface_hub
+certifi
 -e .
