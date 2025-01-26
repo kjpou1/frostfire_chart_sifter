@@ -69,7 +69,7 @@ class DataIngestionService:
             logging.info("Datasets loaded successfully.")
 
             logging.info("Data ingestion process completed.")
-            return {self.train_dataset, self.val_dataset, self.test_dataset}
+            return self.train_dataset, self.val_dataset, self.test_dataset
 
         except Exception as e:
             logging.error("Error occurred during data ingestion: %s", str(e))
