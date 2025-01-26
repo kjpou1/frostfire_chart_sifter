@@ -1,6 +1,7 @@
 import json
 import os
 import random
+from src.config.config import Config
 from src.models.dataset_split_config import DatasetSplitConfig
 from src.logger_manager import LoggerManager
 
@@ -16,9 +17,9 @@ class DatasetSplitterService:
             raw_dir (str): Directory where raw JSONL files are stored.
             processed_dir (str): Directory where processed files will be saved.
         """
-        self.dataset_split_config = DatasetSplitConfig()
-        self.raw_dir = self.dataset_split_config.raw_data_dir
-        self.processed_dir = self.dataset_split_config.processed_data_dir
+        self.dataset_split_config = Config()
+        self.raw_dir = self.dataset_split_config.RAW_DATA_DIR
+        self.processed_dir = self.dataset_split_config.PROCESSED_DATA_DIR
 
     def split_dataset(
         self,

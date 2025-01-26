@@ -2,9 +2,9 @@ import json
 import os
 from datasets import load_dataset
 from PIL import Image
+from src.config.config import Config
 from src.logger_manager import LoggerManager
 
-from src.models.hugging_face_config import HuggingFaceConfig
 from src.utils.file_utils import save_metadata, load_metadata
 
 logging = LoggerManager.get_logger(__name__)
@@ -15,9 +15,9 @@ class HuggingFaceService:
         """
         Initialize the service with the raw data directory.
         """
-        self.hugging_face_config = HuggingFaceConfig()
-        self.raw_data_dir = self.hugging_face_config.raw_data_dir
-        self.metadata_file_path = self.hugging_face_config.metadata_file_path
+        self.hugging_face_config = Config()
+        self.raw_data_dir = self.hugging_face_config.RAW_DATA_DIR
+        self.metadata_file_path = self.hugging_face_config.METADATA_FILE_PATH
 
     def save_image(self, image, save_dir, prefix, image_id):
         """
