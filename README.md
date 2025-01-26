@@ -29,9 +29,16 @@ For more details, explore the repository documentation and examples.
 
 ---
 ## Table of Contents
-- [ml\_project\_template](#ml_project_template)
+- [Frostfire\_Chart\_Sifter](#frostfire_chart_sifter)
+    - [Key Features:](#key-features)
+    - [Why Frostfire\_Chart\_Sifter?](#why-frostfire_chart_sifter)
+    - [Getting Started](#getting-started)
+    - [Applications](#applications)
   - [Table of Contents](#table-of-contents)
   - [Notes on Requirements and Installation](#notes-on-requirements-and-installation)
+  - [Explanation of Dataset Configuration](#explanation-of-dataset-configuration)
+    - [How It Works](#how-it-works)
+    - [Why It’s Important](#why-its-important)
   - [Roles of Key Scripts](#roles-of-key-scripts)
     - [`predict_app`](#predict_app)
     - [`launch_host`](#launch_host)
@@ -42,7 +49,7 @@ For more details, explore the repository documentation and examples.
       - [Interacting with the API:](#interacting-with-the-api)
       - [Key Notes:](#key-notes)
     - [`predict_fasthtml_app`](#predict_fasthtml_app)
-      - [Key Features:](#key-features)
+      - [Key Features:](#key-features-1)
     - [Running the `predict_fasthtml_app`](#running-the-predict_fasthtml_app)
       - [Prerequisites:](#prerequisites-1)
       - [Starting the FastHTML Application:](#starting-the-fasthtml-application)
@@ -60,6 +67,11 @@ For more details, explore the repository documentation and examples.
     - [4. Model Selection Tests](#4-model-selection-tests)
       - [Test Cases:](#test-cases-3)
     - [Execution Instructions](#execution-instructions)
+    - [Troubleshooting and Common Issues](#troubleshooting-and-common-issues)
+      - [**1. SSL Certificate Issues**](#1-ssl-certificate-issues)
+        - [**Cause**](#cause)
+        - [**Solution**](#solution)
+      - [**2. Debugging and Logging**](#2-debugging-and-logging)
 
 ---
 ## Notes on Requirements and Installation
@@ -75,6 +87,60 @@ The `setup.py` script dynamically parses the `requirements.txt` file for depende
 
 ---
 
+The setup you provided is a best practice for configuring TensorFlow datasets for efficient input pipelines. Below is the explanation, detailed steps, and the updated code with comments.
+
+---
+
+## Explanation of Dataset Configuration
+
+**1. Caching**:
+- **Purpose**: Speeds up training by storing the dataset in memory after the first read.
+- **When to Use**: When the dataset fits into memory and remains unchanged throughout training.
+
+**2. Shuffling**:
+- **Purpose**: Randomizes the order of the dataset to prevent the model from learning unintended patterns.
+- **Buffer Size**: Controls how much data is loaded into the buffer for shuffling. A larger size ensures better shuffling but uses more memory.
+
+**3. Prefetching**:
+- **Purpose**: Allows the dataset to fetch the next batch while the model processes the current batch, reducing I/O bottlenecks.
+- **Buffer Size**: Using `tf.data.AUTOTUNE` dynamically determines the optimal buffer size based on available CPU resources.
+
+---
+
+### How It Works
+
+**1. Training Dataset**
+- **`cache()`**:
+  - Stores the dataset in memory after the first read, improving training speed.
+- **`shuffle()`**:
+  - Introduces randomness to the dataset order to prevent overfitting or bias.
+  - A buffer size of `1000` is a good starting point for most datasets.
+- **`prefetch()`**:
+  - Preloads data for the next batch, reducing latency during training.
+
+**2. Validation Dataset**
+- **`cache()`**:
+  - Improves evaluation speed by caching the dataset since it doesn’t change during validation.
+- **`prefetch()`**:
+  - Optimizes input pipeline performance during validation.
+
+**3. Test Dataset**
+- **`cache()`**:
+  - Caches the dataset in memory, speeding up evaluation.
+- **`prefetch()`**:
+  - Ensures the pipeline is efficient during testing.
+
+---
+
+### Why It’s Important
+1. **Performance**:
+   - Reduces I/O bottlenecks and improves training, validation, and testing speeds.
+2. **Scalability**:
+   - Optimizes resource usage, especially on multi-core systems.
+3. **Flexibility**:
+   - Easy to tweak buffer sizes based on dataset size and available memory.
+
+---
 
 ## Roles of Key Scripts
 
@@ -339,6 +405,59 @@ The project includes a comprehensive suite of tests to validate the functionalit
    PYTHONPATH=$(pwd) pytest --cov=src --cov-report=html
    ```
    - View the HTML report in the generated `htmlcov` directory. -->
+
+---
+
+### Troubleshooting and Common Issues
+
+This section covers potential issues you may encounter while using **Frostfire_Chart_Sifter** and provides solutions to resolve them.
+
+---
+
+#### **1. SSL Certificate Issues**
+You might encounter errors related to SSL certificate verification, such as:
+```
+URL fetch failure on <URL>: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed.
+```
+
+##### **Cause**
+This occurs when Python cannot verify the SSL certificate of the URL being accessed, often due to missing or outdated root certificates.
+
+##### **Solution**
+1. **Install Missing Certificates**:
+   - On macOS:
+     ```bash
+     /Applications/Python\ 3.x/Install\ Certificates.command
+     ```
+   - On all platforms:
+     ```bash
+     pip install --upgrade certifi
+     ```
+
+2. **Set the SSL Certificate Path**:
+   ```bash
+   export SSL_CERT_FILE=$(python -m certifi)
+   ```
+
+3. **Disable SSL Verification (Not Recommended for Production)**:
+   ```python
+   import os
+   os.environ['CURL_CA_BUNDLE'] = ''
+   ```
+
+4. **Manual Weight Download**:
+   Download the weights file and specify its local path in your script:
+   ```python
+   model.load_weights("/path/to/local/weights.h5")
+   ```
+
+---
+
+#### **2. Debugging and Logging**
+Enable TensorFlow debugging for detailed insights:
+```python
+tf.debugging.set_log_device_placement(True)
+```
 
 ---
 
