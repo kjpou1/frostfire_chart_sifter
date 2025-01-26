@@ -5,6 +5,7 @@ from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.data.experimental import cardinality
 
 from src.config.config import Config
 from src.exception import CustomException
@@ -14,6 +15,7 @@ from src.services.data_transformation_service import DataTransformationService
 from src.services.dataset_splitter_service import DatasetSplitterService
 from src.services.hugging_face_service import HuggingFaceService
 from src.services.model_selection_service import ModelSelectionService
+from src.services.model_training_service import ModelTrainingService
 from src.utils.file_utils import save_json, save_object, save_training_artifacts
 from src.utils.ml_utils import create_model
 
@@ -24,7 +26,8 @@ class TrainPipeline:
     def __init__(self):
         self.data_ingestion_service = DataIngestionService()
         self.data_transformation_service = DataTransformationService()
-        self.model_selection_service = ModelSelectionService()
+        # self.model_selection_service = ModelSelectionService()
+        self.model_training_service = ModelTrainingService()
         self.config = Config()
 
     def run_pipeline(self):
@@ -79,93 +82,42 @@ class TrainPipeline:
 
             # Step 3: Model Training and Selection
             logging.info("Starting model training and selection.")
-            model, model_file_name = create_model("mobile")
+
+            # MODEL_TYPE = "mobile"
+            MODEL_TYPE = "efficientnet"
+            model, model_file_name = create_model(MODEL_TYPE)
 
             # Model summary
             logging.info(model.summary())
 
-            # Load Config
-            config = Config()
-
             # Configure the training dataset
             train_dataset_final = (
                 train_dataset_scaled.cache()
-                .shuffle(self.config.SHUFFLE_BUFFER_SIZE)  # Use constant from Config
-                .prefetch(self.config.PREFETCH_BUFFER_SIZE)  # Use constant from Config
+                .shuffle(self.config.SHUFFLE_BUFFER_SIZE)
+                .batch(batch_size=self.config.BATCH_SIZE)
+                .prefetch(  # Use constant from Config
+                    self.config.PREFETCH_BUFFER_SIZE
+                )  # Use constant from Config
             )
 
             # Configure the validation dataset
-            validation_dataset_final = val_dataset_scaled.cache().prefetch(
-                self.config.PREFETCH_BUFFER_SIZE
+            validation_dataset_final = (
+                val_dataset_scaled.cache()
+                .batch(batch_size=self.config.BATCH_SIZE)
+                .prefetch(self.config.PREFETCH_BUFFER_SIZE)
             )  # Use constant from Config
 
-            # Configure the test dataset
-            test_dataset_final = test_dataset_scaled.cache().prefetch(
-                self.config.PREFETCH_BUFFER_SIZE
-            )  # Use constant from Config
-
-            save_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(self.config.MODEL_DIR, model_file_name),
-                monitor="val_loss",
-                save_best_only=True,
-                verbose=1,
-            )
-            EPOCHS = self.config.EPOCHS
-            history = model.fit(
-                train_dataset_final,
-                validation_data=validation_dataset_final,
-                epochs=EPOCHS,
-                callbacks=[
-                    tf.keras.callbacks.EarlyStopping(
-                        patience=3, restore_best_weights=True
-                    ),
-                    save_checkpoint,
-                ],
-                verbose=1,
-            )
-            # Generate metadata and run ID
-            metadata = {
-                "model_name": "MobileNetV3",
-                "epochs": EPOCHS,
-                "batch_size": self.config.BATCH_SIZE,
-                "shuffle_buffer_size": self.config.SHUFFLE_BUFFER_SIZE,
-                "prefetch_buffer_size": self.config.PREFETCH_BUFFER_SIZE,
-                "early_stopping_patience": 3,
-                "dataset_details": {
-                    "train_size": str(train_dataset_final),
-                    "val_size": str(validation_dataset_final),
-                    "test_size": str(test_dataset_final),
-                },
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            }
-            run_id = (
-                datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + str(uuid.uuid4())[:8]
+            history, metadata = self.model_training_service.train_and_validate(
+                model=model,
+                model_type=MODEL_TYPE,
+                model_file_name=model_file_name,
+                train_dataset=train_dataset_final,
+                val_dataset=validation_dataset_final,
             )
 
-            # Save history and metadata
-            save_training_artifacts(history, metadata, run_id)
+            logging.info("Pipeline completed successfully.")
+            results = {"history": history, "metadata": metadata}
 
-            results = {}
-            # results = self.model_selection_service.initiate_model_trainer(
-            #     train_arr, test_arr
-            # )
-            # logging.info(f"Model training and selection complete. Results: {results}")
-
-            # # Step 4: Save Artifacts
-            # logging.info("Saving artifacts.")
-            # # Save the best model
-            # logging.info("Saving the best model.")
-            # save_object(
-            #     file_path=self.model_selection_service.model_trainer_config.trained_model_file_path,
-            #     obj=results["best_model"],
-            # )
-
-            # save_object(preprocessor_path, preprocessor_path)
-            # save_object(
-            #     self.model_selection_service.model_trainer_config.trained_model_file_path,
-            #     os.path.join("artifacts", "model.pkl"),
-            # )
-            logging.info("Artifacts saved successfully.")
             return results
 
         except Exception as e:
