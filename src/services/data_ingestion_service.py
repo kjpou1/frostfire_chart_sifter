@@ -5,11 +5,13 @@ from dataclasses import dataclass
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from src.config.config import Config
 from src.exception import CustomException
 from src.logger_manager import LoggerManager
 from src.models.data_ingestion_config import DataIngestionConfig
 from src.services.dataset_splitter_service import DatasetSplitterService
 from src.services.hugging_face_service import HuggingFaceService
+from src.utils.file_utils import load_datasets_from_directory
 
 logging = LoggerManager.get_logger(__name__)
 
@@ -27,72 +29,95 @@ class DataIngestionService:
         self.ingestion_config = DataIngestionConfig()
         self.huggingface_service = HuggingFaceService()
         self.dataset_splitter_service = DatasetSplitterService()
+        self.train_dataset = None
+        self.val_dataset = None
+        self.test_dataset = None
+        self.batch_size = Config().BATCH_SIZE
+        self.img_size = Config().IMG_SIZE
 
     def initiate_data_ingestion(self, test_size=0.2):
         """
-        Orchestrates the data ingestion process:
-        1. Reads the input data from the specified path.
-        2. Splits the data into train and test sets.
-        3. Saves the raw, train, and test datasets to their respective paths.
+        Orchestrates the entire data ingestion process:
+        1. Downloads datasets using HuggingFaceService.
+        2. Splits datasets into train, validation, and test sets using DatasetSplitterService.
+        3. Loads datasets into TensorFlow-friendly format for model training.
 
         Args:
             test_size (float): Proportion of the dataset to include in the test split (default is 0.2).
 
         Returns:
-            tuple: Paths to the train and test dataset files.
+            tuple: Train, validation, and test datasets as TensorFlow datasets.
 
         Raises:
-            CustomException: Custom exception if any error occurs during the process.
+            CustomException: If any error occurs during the data ingestion process.
         """
-        logging.info("Entered the data ingestion method or component.")
+        logging.info("Starting the data ingestion process...")
         try:
-
+            # Step 1: Download datasets from HuggingFace or other sources
+            logging.info("Initiating dataset download via HuggingFaceService...")
             self.huggingface_service.initiate_download()
+            logging.info("Dataset download completed.")
+
+            # Step 2: Split datasets into train, validation, and test sets
+            logging.info("Splitting datasets into train, validation, and test sets...")
             self.dataset_splitter_service.initiate_split()
+            logging.info("Dataset splitting completed.")
 
-            # Check if the input data file exists
-            if not os.path.exists(self.ingestion_config.input_data_path):
-                logging.error(
-                    f"Input file not found at {self.ingestion_config.input_data_path}"
-                )
-                raise FileNotFoundError(
-                    f"File not found: {self.ingestion_config.input_data_path}"
-                )
+            # Step 3: Load datasets into TensorFlow-friendly format
+            logging.info("Loading datasets into TensorFlow-friendly format...")
+            self.initiate_data_ingestion_tf()
+            logging.info("Datasets loaded successfully.")
 
-            # Read the input data into a DataFrame
-            df = pd.read_csv(self.ingestion_config.input_data_path)
-            logging.info("Read the dataset as a pandas DataFrame.")
+            logging.info("Data ingestion process completed.")
+            return {self.train_dataset, self.val_dataset, self.test_dataset}
 
-            # Ensure the directory for saving artifacts exists
-            os.makedirs(
-                os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True
-            )
-
-            # Save the raw dataset
-            df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
-            logging.info("Raw dataset saved successfully.")
-
-            # Perform train-test split
-            logging.info("Initiating train-test split.")
-            train_set, test_set = train_test_split(df, test_size=test_size)
-
-            # Save the train and test datasets
-            train_set.to_csv(
-                self.ingestion_config.train_data_path, index=False, header=True
-            )
-            test_set.to_csv(
-                self.ingestion_config.test_data_path, index=False, header=True
-            )
-            logging.info("Train and test datasets saved successfully.")
-
-            # Return the file paths of the train and test datasets
-            return (
-                self.ingestion_config.train_data_path,
-                self.ingestion_config.test_data_path,
-            )
         except Exception as e:
-            # Log the exception and raise a custom exception
-            logging.error("Error occurred during data ingestion: %s", e)
+            logging.error("Error occurred during data ingestion: %s", str(e))
+            raise CustomException(e, sys) from e
+
+    def initiate_data_ingestion_tf(self):
+        """
+        Loads datasets from the split directories into TensorFlow-friendly format.
+        Uses batch size and image size configurations to prepare the datasets.
+        """
+        try:
+            logging.info(
+                "Loading training dataset from directory: %s",
+                self.ingestion_config.train_data_dir,
+            )
+            self.train_dataset = load_datasets_from_directory(
+                self.ingestion_config.train_data_dir,
+                batch_size=self.batch_size,
+                img_size=self.img_size,
+            )
+            logging.info("Training dataset loaded successfully.")
+
+            logging.info(
+                "Loading validation dataset from directory: %s",
+                self.ingestion_config.val_data_dir,
+            )
+            self.val_dataset = load_datasets_from_directory(
+                self.ingestion_config.val_data_dir,
+                batch_size=self.batch_size,
+                img_size=self.img_size,
+            )
+            logging.info("Validation dataset loaded successfully.")
+
+            logging.info(
+                "Loading test dataset from directory: %s",
+                self.ingestion_config.test_data_dir,
+            )
+            self.test_dataset = load_datasets_from_directory(
+                self.ingestion_config.test_data_dir,
+                batch_size=self.batch_size,
+                img_size=self.img_size,
+            )
+            logging.info("Test dataset loaded successfully.")
+
+        except Exception as e:
+            logging.error(
+                "Error occurred during TensorFlow dataset ingestion: %s", str(e)
+            )
             raise CustomException(e, sys) from e
 
 
