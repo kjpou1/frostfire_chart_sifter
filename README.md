@@ -2,15 +2,16 @@
 
 **Frostfire_Chart_Sifter** is a state-of-the-art machine learning project that classifies images into **charts** or **non-charts** using advanced Convolutional Neural Networks (CNNs). Designed for financial engineers, traders, and developers, it automates chart detection and integrates seamlessly into data workflows.
 
+---
 
-# Table of Contents
-
+## Table of Contents
 - [Frostfire\_Chart\_Sifter](#frostfire_chart_sifter)
-- [Table of Contents](#table-of-contents)
+  - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Why Frostfire\_Chart\_Sifter?](#why-frostfire_chart_sifter)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Command-Line Arguments](#command-line-arguments)
   - [Configuration](#configuration)
   - [Project Structure](#project-structure)
   - [Technologies Used](#technologies-used)
@@ -21,12 +22,16 @@
   - [License](#license)
   - [Acknowledgements](#acknowledgements)
 
+---
+
 ## Features
 - **Binary Image Classification**: Differentiates between charts (e.g., stock or crypto price charts) and other images.
 - **Modular Pipeline**: Includes well-defined pipelines for data ingestion, preprocessing, training, evaluation, and inference.
 - **Custom and Pre-Trained Models**: Supports custom training and pre-trained CNN architectures for efficiency.
 - **Extensive Dataset Support**: Processes diverse datasets, including financial charts and unrelated images, ensuring robustness.
 - **Performance Optimization**: Utilizes caching, shuffling, and prefetching for faster training and evaluation.
+
+---
 
 ## Why Frostfire_Chart_Sifter?
 1. **Efficiency**: Automates manual chart identification, saving time and effort.
@@ -56,16 +61,38 @@
 ## Usage
 1. **Prepare Data**:
    - Place raw datasets in the `artifacts/data/raw/` directory, or configure paths in `src/config/config.py`.
-2. **Train the Model**:
-   Run the training pipeline:
+
+2. **Ingest Data**:
+   Use the command-line argument `ingest` to download and preprocess datasets.
    ```bash
-   python src/pipeline/train_pipeline.py
+   python launch_host.py ingest --config path/to/ingestion_config.json --debug
    ```
-3. **Run Inference**:
+
+3. **Train the Model**:
+   Use the command-line argument `train` to execute the full training pipeline.
+   ```bash
+   python launch_host.py train --config path/to/train_config.json --debug
+   ```
+
+4. **Run Inference**:
    Use the REST API or web interface for predictions. Example:
    ```bash
    curl -X POST "http://127.0.0.1:8008/predict" -H "Content-Type: application/json" -d '{"image_path": "path/to/image.png"}'
    ```
+
+### Command-Line Arguments
+The application supports subcommands for streamlined workflows:
+- **`ingest`**: Downloads and preprocesses datasets for training and evaluation.
+  - `--config`: Path to the ingestion configuration file (optional).
+  - `--debug`: Enable debug mode for verbose logging.
+- **`train`**: Executes the training pipeline.
+  - `--config`: Path to the training configuration file (optional).
+  - `--debug`: Enable debug mode for verbose logging.
+
+Example:
+```bash
+python launch_host.py ingest --config artifacts/config/ingestion.json --debug
+```
 
 ---
 
@@ -158,5 +185,3 @@ This project is licensed under the Mozilla Public License Version 2.0. See `LICE
 
 ## Acknowledgements
 Special thanks to the contributors and the TensorFlow and Hugging Face communities for their incredible tools and support.
-
-
