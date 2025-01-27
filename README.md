@@ -19,6 +19,21 @@
     - [Notes](#notes)
   - [Configuration](#configuration)
   - [Project Structure](#project-structure)
+  - [Model Configuration File Documentation](#model-configuration-file-documentation)
+    - [Structure of the Configuration](#structure-of-the-configuration)
+      - [**General Format**](#general-format)
+      - [Model Configuration Documentation](#model-configuration-documentation)
+    - [**Metrics Configuration**](#metrics-configuration)
+    - [Input Example](#input-example)
+    - [Output Example](#output-example)
+    - [**Key Sections**](#key-sections)
+      - [1. **`mobile`**: Example for MobileNetV3Small](#1-mobile-example-for-mobilenetv3small)
+      - [2. **`custom-1`**: Custom Model with Sequential Layers](#2-custom-1-custom-model-with-sequential-layers)
+      - [3. **`custom-mobile`**: MobileNetV3Small with a Learning Rate Schedule](#3-custom-mobile-mobilenetv3small-with-a-learning-rate-schedule)
+    - [Key Considerations](#key-considerations)
+    - [How to Use the Model Configuration](#how-to-use-the-model-configuration)
+    - [Adding New Models](#adding-new-models)
+  - [This modular approach ensures easy scalability and maintainability for your project.](#this-modular-approach-ensures-easy-scalability-and-maintainability-for-your-project)
   - [Technologies Used](#technologies-used)
   - [Troubleshooting and Common Issues](#troubleshooting-and-common-issues)
     - [1. SSL Certificate Issues](#1-ssl-certificate-issues)
@@ -166,6 +181,7 @@ export BASE_DIR=/path/to/artifacts
 ```
 Frostfire_Chart_Sifter/
 │
+├── config/                   # Configurations (ex. model_config.yaml)
 ├── artifacts/                # Generated data, models, logs, etc.
 ├── src/                      # Source code
 │   ├── config/               # Configuration management
@@ -178,7 +194,212 @@ Frostfire_Chart_Sifter/
 ├── README.md                 # Documentation
 └── setup.py                  # Package setup script
 ```
+---
 
+## Model Configuration File Documentation
+
+The **model configuration file** is a YAML file that defines all model-specific parameters, enabling the application to dynamically create, train, and manage models without hardcoding these details into the codebase. The default file is located at:
+
+```
+config/model_config.yaml
+```
+
+### Structure of the Configuration
+
+The configuration file is organized into sections, each corresponding to a specific model type. Here's a breakdown of the key elements:
+
+---
+
+#### **General Format**
+```yaml
+<model_name>:                    # Unique name for the model
+  base_model: <Base Model Name>  # Name of the pretrained model to use (if applicable)
+  trainable: <true|false>        # Whether the base model's weights are trainable
+  dense_units: <int>             # Number of units in the dense layer
+  dropout_rate: <float>          # Dropout rate to prevent overfitting
+  learning_rate: <float>         # Learning rate for the optimizer
+  loss: <Loss Function>          # Loss function for model training
+  metrics:                       # List of metrics to evaluate the model
+    - <Eval Metric>              # Metric can be directly specified as a string (e.g., "accuracy")
+    - name: <Metric Name>        # Metric as a dictionary for customization
+      args:                      # Optional arguments for the metric
+        <key>: <value>           # Additional arguments passed to the metric (e.g., `curve` for AUC)
+  file_name: <File Name>         # File name for saving the model
+```
+
+#### Model Configuration Documentation
+
+---
+
+### **Metrics Configuration**
+The `metrics` field supports both simple and advanced configurations:
+
+1. **Simple Metric**:
+   Directly specify the metric name as a string.
+   ```yaml
+   metrics:
+     - accuracy
+   ```
+
+2. **Custom Metric with Arguments**:
+   Specify a dictionary with the metric name and optional arguments.
+   ```yaml
+   metrics:
+     - name: AUC
+       args:
+         curve: ROC
+         name: auc
+   ```
+
+---
+
+### Input Example
+The following YAML snippet demonstrates how to define metrics in the configuration file:
+```yaml
+metrics:
+  - accuracy
+  - name: AUC
+    args:
+      name: auc
+```
+
+---
+
+### Output Example
+The above configuration will be transformed into a Python list of TensorFlow-compatible metrics:
+```python
+[
+    "accuracy", 
+    tf.keras.metrics.AUC(name="auc")
+]
+```
+
+---
+
+### **Key Sections**
+
+#### 1. **`mobile`**: Example for MobileNetV3Small
+```yaml
+mobile:
+  base_model: MobileNetV3Small
+  trainable: false
+  dense_units: 128
+  dropout_rate: 0.3
+  learning_rate: 0.001
+  loss: binary_crossentropy
+  metrics:
+    - name: Accuracy
+    - name: AUC
+      args:
+        curve: ROC
+  file_name: mobilenetv3_classifier.keras
+```
+- **Base Model**: `MobileNetV3Small`
+- **Dropout**: Adds regularization during training.
+- **Metrics**: Includes Accuracy and Area Under the Curve (AUC) with a ROC curve.
+
+---
+
+#### 2. **`custom-1`**: Custom Model with Sequential Layers
+```yaml
+custom-1:
+  layers:
+    - type: Rescaling
+      arguments: { scale: 0.00392156862745098 }  # Normalizes pixel values
+    - type: Conv2D
+      arguments: { filters: 16, kernel_size: [3, 3], activation: relu }
+    - type: MaxPooling2D
+      arguments: { pool_size: [2, 2] }
+    - type: Conv2D
+      arguments: { filters: 32, kernel_size: [3, 3], activation: relu }
+    - type: MaxPooling2D
+      arguments: { pool_size: [2, 2] }
+    - type: Flatten
+    - type: Dense
+      arguments: { units: 512, activation: relu }
+    - type: Dense
+      arguments: { units: 1, activation: sigmoid }
+  optimizer: RMSprop
+  optimizer_args:
+    learning_rate: 0.001
+  loss: binary_crossentropy
+  metrics:
+    - name: Accuracy
+    - name: AUC
+      args:
+        curve: ROC
+  file_name: custom1_classifier.keras
+```
+- **Custom Layers**: Describes the architecture explicitly, including layer types and arguments.
+- **Optimizer**: Uses RMSprop with additional arguments for learning rate.
+
+---
+
+#### 3. **`custom-mobile`**: MobileNetV3Small with a Learning Rate Schedule
+```yaml
+custom-mobile:
+  base_model: MobileNetV3Small
+  trainable: false
+  dense_units: 128
+  dropout_rate: 0.3
+  learning_rate_schedule:
+    type: ExponentialDecay
+    arguments:
+      initial_learning_rate: 0.001
+      decay_steps: 10000
+      decay_rate: 0.9
+      staircase: true
+  loss: binary_crossentropy
+  metrics:
+    - name: Accuracy
+    - name: AUC
+      args:
+        curve: ROC
+  file_name: custom_mobilenetv3_classifier.keras
+```
+- **Learning Rate Schedule**: Configures an exponential decay for learning rate.
+- **Pretrained Model**: MobileNetV3Small is frozen (not trainable).
+
+---
+
+### Key Considerations
+1. **Scalability**: New models can be added by extending the `models` section without changing the code.
+2. **Custom Metrics**: Specify arguments for metrics (e.g., ROC curve) for better evaluation.
+3. **Flexibility**: Layer-by-layer customization for models like `custom-1` supports fine-grained control.
+
+---
+
+### How to Use the Model Configuration
+- **Default Location**: The application loads the configuration from `config/model_config.yaml`.
+- **Custom Location**: Use the `--config` flag to specify a custom file path:
+  ```bash
+  python launch_host.py train --model_type mobile --config path/to/your_model_config.yaml
+  ```
+- **Validation**: The system validates that the specified `model_type` exists in the configuration before proceeding.
+
+---
+
+### Adding New Models
+To add a new model, follow these steps:
+1. Define the model parameters under the `models` section.
+2. Ensure all necessary keys (e.g., `base_model`, `trainable`, `metrics`) are included.
+3. If using custom layers, provide `type` and `arguments` for each layer.
+
+Example:
+```yaml
+new_model:
+  base_model: EfficientNetV2
+  trainable: true
+  dense_units: 256
+  dropout_rate: 0.4
+  learning_rate: 0.0001
+  loss: categorical_crossentropy
+  metrics:
+    - name: Accuracy
+  file_name: efficientnetv2_classifier.keras
+```
+
+This modular approach ensures easy scalability and maintainability for your project.
 ---
 
 ## Technologies Used

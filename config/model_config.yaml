@@ -7,10 +7,10 @@ models:
     learning_rate: 0.001
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: mobilenetv3_classifier.keras
 
   mobile_large:
@@ -21,10 +21,10 @@ models:
     learning_rate: 0.01
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: mobilenetv3large_classifier.keras
 
   custom-1:
@@ -53,10 +53,10 @@ models:
       learning_rate: 0.001
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: custom1_classifier.keras
 
   custom-mobile:
@@ -73,10 +73,10 @@ models:
         staircase: true
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: custom_mobilenetv3_classifier.keras
 
   efficientnet:
@@ -87,10 +87,10 @@ models:
     learning_rate: 0.001
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: efficientnet_classifier.keras
 
   resnet:
@@ -101,10 +101,10 @@ models:
     learning_rate: 0.001
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: resnet_classifier.keras
 
   densenet:
@@ -115,8 +115,8 @@ models:
     learning_rate: 0.001
     loss: binary_crossentropy
     metrics:
-      - name: Accuracy
+      - accuracy
       - name: AUC
         args:
-          curve: ROC
+          name: auc
     file_name: densenet_classifier.keras

@@ -341,12 +341,15 @@ def create_model_from_config(model_type, input_shape=None):
         model.compile(
             optimizer=optimizer,
             loss=model_config["loss"],
+            # metrics=["accuracy", tf.keras.metrics.AUC(name="auc")],
             metrics=[
                 (
-                    getattr(tf.keras.metrics, metric["name"])(**metric.get("args", {}))
-                    if isinstance(metric, dict)
-                    else getattr(tf.keras.metrics, metric)()
-                )
+                    metric
+                    if isinstance(metric, str)  # Handle string metrics directly
+                    else getattr(tf.keras.metrics, metric["name"])(
+                        **metric.get("args", {})
+                    )
+                )  # Handle dict metrics
                 for metric in model_config["metrics"]
             ],
         )

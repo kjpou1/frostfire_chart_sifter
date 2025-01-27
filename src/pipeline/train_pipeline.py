@@ -86,12 +86,11 @@ class TrainPipeline:
             # MODEL_TYPE = "densenet"
             # MODEL_TYPE = "efficientnet"
             # model_type = "efficientnet"
-            # model, model_file_name = create_model(MODEL_TYPE)
-            # logging.info(model.summary())
-            # model, model_file_name = create_model_from_config(MODEL_TYPE)
             model_type = self.config.model_type
+            # model, model_file_name = create_model(model_type)
+            # logging.info(model.summary())
+
             model, model_file_name = create_model_from_config(model_type)
-            # Model summary
             logging.info(model.summary())
 
             # Configure the training dataset
