@@ -19,6 +19,20 @@
             "program": "launch_host.py",
             "args": ["--host=0.0.0.0"],
         },
+        {
+            "name": "Ingest",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "launch_host.py",
+            "args": ["ingest"],
+        },
+        {
+            "name": "Train",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "launch_host.py",
+            "args": ["train"],
+        },
 
     ]
 }

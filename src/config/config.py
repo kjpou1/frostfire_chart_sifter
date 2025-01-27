@@ -23,7 +23,7 @@ class Config(metaclass=SingletonMeta):
 
         # Constants
         self.IMG_SIZE = (224, 224)  # Image size (height, width)
-        self.BATCH_SIZE = 32  # Batch size
+        self.BATCH_SIZE = 64  # Batch size
 
         # Dataset Buffer Sizes
         self.SHUFFLE_BUFFER_SIZE = 1000

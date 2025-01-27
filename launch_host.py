@@ -6,9 +6,11 @@ creating a Host instance, and launching its main logic asynchronously.
 """
 
 import asyncio
+import traceback
+
 from src.host import Host
-from src.runtime.command_line import CommandLine
 from src.logger_manager import LoggerManager
+from src.runtime.command_line import CommandLine
 
 logging = LoggerManager.get_logger(__name__)
 
@@ -19,22 +21,29 @@ async def launch_async():
 
     Parses command-line arguments, initializes the Host instance, and
     launches the main logic asynchronously.
+
+    Raises:
+        ValueError: If invalid arguments are provided.
+        KeyboardInterrupt: If the execution is interrupted by the user.
+        Exception: For any unexpected errors during execution.
     """
     try:
+        # Parse command-line arguments
         args = CommandLine.parse_arguments()
         logging.info("Launching host with arguments: %s", args)
 
         # Create an instance of Host with parsed arguments
         instance = Host(args)
 
-        # Launch the async main function with the parsed arguments
+        # Run the main asynchronous logic
         await instance.run_async()
+
     except ValueError as e:
-        logging.error("ValueError: %s", e)
+        logging.error("ValueError occurred: %s", e)
     except KeyboardInterrupt:
         logging.info("Execution interrupted by user.")
     except Exception as e:
-        logging.error("Unexpected error occurred: %s", e)
+        logging.error("Unexpected error occurred: %s\n%s", e, traceback.format_exc())
 
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ class DataIngestionService:
         self.batch_size = Config().BATCH_SIZE
         self.img_size = Config().IMG_SIZE
 
-    def initiate_data_ingestion(self, test_size=0.2):
+    async def initiate_data_ingestion(self, test_size=0.2):
         """
         Orchestrates the entire data ingestion process:
         1. Downloads datasets using HuggingFaceService.
@@ -65,7 +65,7 @@ class DataIngestionService:
 
             # Step 3: Load datasets into TensorFlow-friendly format
             logging.info("Loading datasets into TensorFlow-friendly format...")
-            self.initiate_data_ingestion_tf()
+            await self.initiate_data_ingestion_tf()
             logging.info("Datasets loaded successfully.")
 
             logging.info("Data ingestion process completed.")
@@ -75,7 +75,7 @@ class DataIngestionService:
             logging.error("Error occurred during data ingestion: %s", str(e))
             raise CustomException(e, sys) from e
 
-    def initiate_data_ingestion_tf(self):
+    async def initiate_data_ingestion_tf(self):
         """
         Loads datasets from the split directories into TensorFlow-friendly format.
         Uses batch size and image size configurations to prepare the datasets.

@@ -30,7 +30,7 @@ class TrainPipeline:
         self.model_training_service = ModelTrainingService()
         self.config = Config()
 
-    def run_pipeline(self):
+    async def run_pipeline(self):
         try:
 
             # Step 1: Data Ingestion
@@ -39,7 +39,7 @@ class TrainPipeline:
             #     self.data_ingestion_service.initiate_data_ingestion()
             # )
             train_tf_dataset, val_tf_dataset, test_tf_dataset = (
-                self.data_ingestion_service.initiate_data_ingestion()
+                await self.data_ingestion_service.initiate_data_ingestion()
             )
             logging.info(
                 f"Data ingested. \nTrain: {train_tf_dataset}, \nVal: {val_tf_dataset}, \nTest: {train_tf_dataset}"
@@ -65,7 +65,7 @@ class TrainPipeline:
             (
                 train_dataset_scaled,
                 val_dataset_scaled,
-                test_dataset_scaled,
+                _,
             ) = self.data_transformation_service.initiate_data_transformation(
                 train_tf_dataset, val_tf_dataset, test_tf_dataset
             )
@@ -84,7 +84,9 @@ class TrainPipeline:
             logging.info("Starting model training and selection.")
 
             # MODEL_TYPE = "mobile"
-            MODEL_TYPE = "efficientnet"
+            # MODEL_TYPE = "densenet"
+            # MODEL_TYPE = "efficientnet"
+            MODEL_TYPE = "resnet"
             model, model_file_name = create_model(MODEL_TYPE)
 
             # Model summary

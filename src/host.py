@@ -1,8 +1,10 @@
 import asyncio
-from src.models.command_line_args import CommandLineArgs
-from src.logger_manager import LoggerManager
-from src.pipeline.train_pipeline import TrainPipeline
+
 from src.exception import CustomException
+from src.logger_manager import LoggerManager
+from src.models.command_line_args import CommandLineArgs
+from src.pipeline.train_pipeline import TrainPipeline
+from src.services.data_ingestion_service import DataIngestionService
 
 logging = LoggerManager.get_logger(__name__)
 
@@ -11,13 +13,13 @@ class Host:
     """
     Host class to manage the execution of the main application.
 
-    This class handles initialization with command-line arguments and
-    configuration, and runs the main asynchronous functionality.
+    Handles initialization with command-line arguments and execution
+    of the specified subcommands (e.g., ingest, train).
     """
 
     def __init__(self, args: CommandLineArgs):
         """
-        Initialize the Host class with command-line arguments and configuration.
+        Initialize the Host class with command-line arguments.
 
         Parameters:
         args (CommandLineArgs): Command-line arguments passed to the script.
@@ -37,25 +39,42 @@ class Host:
         """
         Main asynchronous method to execute the host functionality.
 
-        Leverages the TrainPipeline to perform data ingestion, transformation,
-        and model training in a centralized and structured manner.
+        Determines the action based on the provided subcommand.
         """
         try:
             logging.info("Starting host operations.")
 
-            # Initialize and execute the training pipeline
-            train_pipeline = TrainPipeline()
-            result = train_pipeline.run_pipeline()
-
-            # Log the results from the pipeline
-            logging.info("Pipeline execution completed successfully.")
-            logging.info("Results: %s", result)
+            if self.args.command == "ingest":
+                logging.info("Executing data ingestion workflow.")
+                await self.run_ingestion()
+            elif self.args.command == "train":
+                logging.info("Executing training workflow.")
+                await self.run_training()
+            else:
+                logging.error("No valid subcommand provided.")
+                raise ValueError(
+                    "Please specify a valid subcommand: 'ingest' or 'train'."
+                )
 
         except CustomException as e:
             logging.error("A custom error occurred during host operations: %s", e)
-            raise  # Re-raise to handle further if needed
+            raise
         except Exception as e:
             logging.error("An unexpected error occurred: %s", e)
-            raise  # Re-raise to ensure visibility of unexpected errors
+            raise
         finally:
             logging.info("Shutting down host gracefully.")
+
+    async def run_ingestion(self):
+        """
+        Execute the data ingestion workflow.
+        """
+        data_ingestion_service = DataIngestionService()
+        await data_ingestion_service.initiate_data_ingestion()
+
+    async def run_training(self):
+        """
+        Execute the model training workflow.
+        """
+        train_pipeline = TrainPipeline()
+        await train_pipeline.run_pipeline()
