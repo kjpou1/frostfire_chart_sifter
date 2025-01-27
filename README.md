@@ -38,8 +38,8 @@
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/Frostfire_Chart_Sifter.git
-   cd Frostfire_Chart_Sifter
+   git clone https://github.com/kjpou1/frostfire_chart_sifter.git
+   cd frostfire_chart_sifter
    ```
 2. Create and activate a virtual environment:
    ```bash
