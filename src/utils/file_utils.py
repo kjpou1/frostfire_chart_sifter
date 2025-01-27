@@ -216,13 +216,15 @@ def load_datasets_from_directory(
         raise CustomException(e, sys) from e
 
 
-def save_training_artifacts(history, metadata, run_id):
+def save_training_artifacts(history, metadata, model_type, run_id):
     """
-    Save training artifacts, including the training history and metadata, to the history directory.
+    Save training artifacts, including the training history and metadata,
+    to a model-specific directory under the history directory.
 
     Args:
         history: The history object returned by `model.fit`.
         metadata: A dictionary containing metadata about the training run.
+        model_type: Name of the model type (e.g., mobile, efficientnet).
         run_id: Unique identifier for this training run.
 
     Raises:
@@ -230,15 +232,23 @@ def save_training_artifacts(history, metadata, run_id):
     """
     try:
         config = Config()
-        history_dir = config.HISTORY_DIR
-        history_file = os.path.join(history_dir, f"history_{run_id}.json")
-        metadata_file = os.path.join(history_dir, f"metadata_{run_id}.json")
+        # Create model-specific subdirectory
+        model_history_dir = os.path.join(config.HISTORY_DIR, model_type)
+        os.makedirs(model_history_dir, exist_ok=True)
 
+        # Define file paths
+        history_file = os.path.join(model_history_dir, f"history_{run_id}.json")
+        metadata_file = os.path.join(model_history_dir, f"metadata_{run_id}.json")
+
+        # Save history
         save_json(history_file, history.history)
         logging.info(f"Training history saved to {history_file}")
 
+        # Save metadata
         save_json(metadata_file, metadata)
         logging.info(f"Training metadata saved to {metadata_file}")
     except Exception as e:
-        logging.error(f"Failed to save training artifacts: {str(e)}")
+        logging.error(
+            f"Failed to save training artifacts for model {model_type}: {str(e)}"
+        )
         raise CustomException(f"Failed to save training artifacts: {str(e)}")

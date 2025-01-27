@@ -64,7 +64,8 @@ class ModelTrainingService:
                 "checkpoint_path": checkpoint_path,
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
-            save_training_artifacts(history, metadata, run_id)
+
+            save_training_artifacts(history, metadata, model_type, run_id)
 
             self.logger.info("Model training completed successfully.")
             return history, metadata
