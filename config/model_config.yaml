@@ -1,0 +1,122 @@
+models:
+  mobile:
+    base_model: MobileNetV3Small
+    trainable: false
+    dense_units: 128
+    dropout_rate: 0.3
+    learning_rate: 0.001
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: mobilenetv3_classifier.keras
+
+  mobile_large:
+    base_model: MobileNetV3Large
+    trainable: false
+    dense_units: 128
+    dropout_rate: 0.3
+    learning_rate: 0.01
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: mobilenetv3large_classifier.keras
+
+  custom-1:
+    layers:
+      - type: Rescaling
+        arguments: { scale: 0.00392156862745098 }  # 1/255
+      - type: Conv2D
+        arguments: { filters: 16, kernel_size: [3, 3], activation: relu }
+      - type: MaxPooling2D
+        arguments: { pool_size: [2, 2] }
+      - type: Conv2D
+        arguments: { filters: 32, kernel_size: [3, 3], activation: relu }
+      - type: MaxPooling2D
+        arguments: { pool_size: [2, 2] }
+      - type: Conv2D
+        arguments: { filters: 64, kernel_size: [3, 3], activation: relu }
+      - type: MaxPooling2D
+        arguments: { pool_size: [2, 2] }
+      - type: Flatten
+      - type: Dense
+        arguments: { units: 512, activation: relu }
+      - type: Dense
+        arguments: { units: 1, activation: sigmoid }
+    optimizer: RMSprop
+    optimizer_args:
+      learning_rate: 0.001
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: custom1_classifier.keras
+
+  custom-mobile:
+    base_model: MobileNetV3Small
+    trainable: false
+    dense_units: 128
+    dropout_rate: 0.3
+    learning_rate_schedule:
+      type: ExponentialDecay
+      arguments:
+        initial_learning_rate: 0.001
+        decay_steps: 10000
+        decay_rate: 0.9
+        staircase: true
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: custom_mobilenetv3_classifier.keras
+
+  efficientnet:
+    base_model: EfficientNetB0
+    trainable: false
+    dense_units: 128
+    dropout_rate: 0.3
+    learning_rate: 0.001
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: efficientnet_classifier.keras
+
+  resnet:
+    base_model: ResNet50
+    trainable: false
+    dense_units: 128
+    dropout_rate: 0.3
+    learning_rate: 0.001
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: resnet_classifier.keras
+
+  densenet:
+    base_model: DenseNet121
+    trainable: false
+    dense_units: 128
+    dropout_rate: 0.3
+    learning_rate: 0.001
+    loss: binary_crossentropy
+    metrics:
+      - name: Accuracy
+      - name: AUC
+        args:
+          curve: ROC
+    file_name: densenet_classifier.keras

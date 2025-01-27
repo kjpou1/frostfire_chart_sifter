@@ -23,6 +23,7 @@ class Config(metaclass=SingletonMeta):
 
         # Constants
         self.IMG_SIZE = (224, 224)  # Image size (height, width)
+        self.INPUT_SHAPE = (224, 224, 3)  # Default input shape
         self.BATCH_SIZE = 64  # Batch size
 
         # Dataset Buffer Sizes

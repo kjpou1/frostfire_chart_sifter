@@ -5,7 +5,6 @@ from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.data.experimental import cardinality
 
 from src.config.config import Config
 from src.exception import CustomException
@@ -17,7 +16,7 @@ from src.services.hugging_face_service import HuggingFaceService
 from src.services.model_selection_service import ModelSelectionService
 from src.services.model_training_service import ModelTrainingService
 from src.utils.file_utils import save_json, save_object, save_training_artifacts
-from src.utils.ml_utils import create_model
+from src.utils.ml_utils import create_model, create_model_from_config
 
 logging = LoggerManager.get_logger(__name__)
 
@@ -87,8 +86,10 @@ class TrainPipeline:
             # MODEL_TYPE = "densenet"
             # MODEL_TYPE = "efficientnet"
             MODEL_TYPE = "resnet"
-            model, model_file_name = create_model(MODEL_TYPE)
-
+            # model, model_file_name = create_model(MODEL_TYPE)
+            # logging.info(model.summary())
+            # model, model_file_name = create_model_from_config(MODEL_TYPE)
+            model, model_file_name = create_model_from_config(MODEL_TYPE)
             # Model summary
             logging.info(model.summary())
 
