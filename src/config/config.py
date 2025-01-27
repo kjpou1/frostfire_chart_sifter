@@ -9,54 +9,82 @@ from src.models import SingletonMeta
 class Config(metaclass=SingletonMeta):
     """
     Singleton configuration class for managing project-wide constants and directories.
+
+    This class handles environment variables, default values, and ensures that
+    necessary directories are created for the application.
     """
 
-    _is_initialized = False  # Tracks whether the Config has already been initialized
+    _is_initialized = False  # Tracks if the Config has already been initialized
 
     def __init__(self):
+        """
+        Initialize the configuration class. Loads environment variables, sets defaults,
+        and creates necessary directories. Prevents re-initialization if already initialized.
+        """
         # Prevent re-initialization
         if Config._is_initialized:
             return
 
-        # Load environment variables
+        # Load environment variables from .env file
         load_dotenv()
 
-        # Constants
-        self.IMG_SIZE = (224, 224)  # Image size (height, width)
-        self.INPUT_SHAPE = (224, 224, 3)  # Default input shape
-        self.BATCH_SIZE = 64  # Batch size
+        # Set constants from environment variables or use defaults
+        self.IMG_SIZE = tuple(
+            map(int, os.getenv("IMG_SIZE", "224,224").split(","))
+        )  # Image size (height, width)
+        self.INPUT_SHAPE = (*self.IMG_SIZE, 3)  # Input shape for TensorFlow models
+        self.BATCH_SIZE = int(os.getenv("BATCH_SIZE", 64))  # Batch size for training
+        self.EPOCHS = int(os.getenv("EPOCHS", 35))  # Number of training epochs
+        self._MODEL_TYPE = os.getenv("MODEL_TYPE", None)  # Model type to be used
 
-        # Dataset Buffer Sizes
-        self.SHUFFLE_BUFFER_SIZE = 1000
-        self.PREFETCH_BUFFER_SIZE = tf.data.AUTOTUNE
+        # Dataset buffer sizes for shuffling and prefetching
+        self.SHUFFLE_BUFFER_SIZE = int(
+            os.getenv("SHUFFLE_BUFFER_SIZE", 1000)
+        )  # Shuffle buffer size
+        self.PREFETCH_BUFFER_SIZE = (
+            tf.data.AUTOTUNE
+        )  # Auto-tune prefetch buffer size for optimal performance
 
-        # Epoch for training
-        self.EPOCHS = 35
-
-        # Base directory for artifacts
+        # Base directory for all artifacts
         self.BASE_DIR = os.getenv("BASE_DIR", "artifacts")
 
-        # Subdirectories for artifacts
-        self.RAW_DATA_DIR = os.path.join(self.BASE_DIR, "data", "raw")
-        self.PROCESSED_DATA_DIR = os.path.join(self.BASE_DIR, "data", "processed")
-        self.FEATURES_DIR = os.path.join(self.BASE_DIR, "data", "features")
-        self.MODEL_DIR = os.path.join(self.BASE_DIR, "models")
-        self.LOG_DIR = os.path.join(self.BASE_DIR, "logs")
-        self.METADATA_DIR = os.path.join(self.BASE_DIR, "metadata")
-        self.METADATA_FILE_PATH = os.path.join(self.METADATA_DIR, "metadata.json")
-        self.REPORTS_DIR = os.path.join(self.BASE_DIR, "reports")
-        # History Directory
-        self.HISTORY_DIR = os.path.join(self.BASE_DIR, "history")
+        # Subdirectories for different types of artifacts
+        self.RAW_DATA_DIR = os.path.join(
+            self.BASE_DIR, "data", "raw"
+        )  # Raw data storage
+        self.PROCESSED_DATA_DIR = os.path.join(
+            self.BASE_DIR, "data", "processed"
+        )  # Processed data storage
+        self.FEATURES_DIR = os.path.join(
+            self.BASE_DIR, "data", "features"
+        )  # Feature data storage
+        self.MODEL_DIR = os.path.join(
+            self.BASE_DIR, "models"
+        )  # Trained models directory
+        self.LOG_DIR = os.path.join(self.BASE_DIR, "logs")  # Logs directory
+        self.METADATA_DIR = os.path.join(
+            self.BASE_DIR, "metadata"
+        )  # Metadata directory
+        self.METADATA_FILE_PATH = os.path.join(
+            self.METADATA_DIR, "metadata.json"
+        )  # Metadata file path
+        self.REPORTS_DIR = os.path.join(self.BASE_DIR, "reports")  # Reports directory
+        self.HISTORY_DIR = os.path.join(
+            self.BASE_DIR, "history"
+        )  # Training history directory
 
-        # Ensure all necessary directories exist
+        # Ensure all required directories exist
         self._ensure_directories_exist()
 
-        # Mark as initialized
+        # Mark the Config as initialized
         Config._is_initialized = True
 
     def _ensure_directories_exist(self):
         """
-        Ensures that all necessary directories exist. Creates them if they do not.
+        Ensure that all necessary directories exist. Creates directories if they do not exist.
+
+        Raises:
+            OSError: If directory creation fails.
         """
         directories = [
             self.RAW_DATA_DIR,
@@ -69,30 +97,48 @@ class Config(metaclass=SingletonMeta):
             self.HISTORY_DIR,
         ]
         for directory in directories:
-            os.makedirs(directory, exist_ok=True)
+            try:
+                os.makedirs(directory, exist_ok=True)
+            except OSError as e:
+                raise OSError(f"Failed to create directory {directory}: {e}")
+
+    @property
+    def model_type(self) -> str:
+        """
+        Getter for the model type.
+
+        Returns:
+            str: The current model type.
+        """
+        return self._MODEL_TYPE
+
+    @model_type.setter
+    def model_type(self, value: str) -> None:
+        """
+        Setter for the model type.
+
+        Args:
+            value (str): The new model type to be set.
+
+        Raises:
+            ValueError: If the value is not a string.
+        """
+        if not isinstance(value, str):
+            raise ValueError("Model type must be a string.")
+        self._MODEL_TYPE = value
 
     @classmethod
     def initialize(cls):
         """
-        Explicitly initializes the Config singleton.
-        This ensures that the configuration is set up before being used in the application.
+        Explicitly initialize the Config singleton if not already initialized.
         """
         if not cls._is_initialized:
             cls()
 
     @classmethod
-    def is_initialized(cls):
-        """
-        Checks whether the Config singleton has been initialized.
-        Returns:
-            bool: True if initialized, False otherwise.
-        """
-        return cls._is_initialized
-
-    @classmethod
     def reset(cls):
         """
-        Resets the Config singleton for testing purposes.
+        Reset the Config singleton. Useful for testing purposes.
         """
         cls._is_initialized = False
         cls._instances = {}

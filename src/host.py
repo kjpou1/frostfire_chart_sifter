@@ -1,5 +1,7 @@
 import asyncio
+import sys
 
+from src.config.config import Config
 from src.exception import CustomException
 from src.logger_manager import LoggerManager
 from src.models.command_line_args import CommandLineArgs
@@ -25,6 +27,8 @@ class Host:
         args (CommandLineArgs): Command-line arguments passed to the script.
         """
         self.args = args
+        self.config = Config()
+        self.config.model_type = self.args.model_type
         logging.info("Host initialized with arguments: %s", self.args)
 
     def run(self):
@@ -49,6 +53,10 @@ class Host:
                 await self.run_ingestion()
             elif self.args.command == "train":
                 logging.info("Executing training workflow.")
+                if not self.args.model_type:
+                    raise ValueError(
+                        "A model type must be specified for the 'train' command."
+                    )
                 await self.run_training()
             else:
                 logging.error("No valid subcommand provided.")
@@ -61,7 +69,7 @@ class Host:
             raise
         except Exception as e:
             logging.error("An unexpected error occurred: %s", e)
-            raise
+            raise  # CustomException("An unexpected error occured", sys) from e
         finally:
             logging.info("Shutting down host gracefully.")
 

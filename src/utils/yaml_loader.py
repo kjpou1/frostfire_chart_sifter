@@ -31,3 +31,22 @@ def load_model_config(file_path="config/model_config.yaml"):
     except Exception as e:
         logging.error(f"Failed to load model configuration: {e}")
         raise CustomException(e)
+
+
+def load_supported_model_types(config_path: str = "config/model_config.yaml") -> list:
+    """
+    Load supported model types from the model configuration file.
+
+    Args:
+        config_path (str): Path to the model configuration file.
+
+    Returns:
+        list: A list of supported model types.
+    """
+    try:
+        with open(config_path, "r") as file:
+            config = yaml.safe_load(file)
+        return list(config.get("models", {}).keys())
+    except Exception as e:
+        logging.error(f"Failed to load model configuration: {e}")
+        raise CustomException(e)

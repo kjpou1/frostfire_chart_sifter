@@ -17,7 +17,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "launch_host.py",
-            "args": ["--host=0.0.0.0"],
+            "args": [],
         },
         {
             "name": "Ingest",
@@ -31,7 +31,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "launch_host.py",
-            "args": ["train"],
+            "args": ["train", "--model_type=mobile"],
         },
 
     ]

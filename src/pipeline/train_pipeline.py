@@ -85,11 +85,12 @@ class TrainPipeline:
             # MODEL_TYPE = "mobile"
             # MODEL_TYPE = "densenet"
             # MODEL_TYPE = "efficientnet"
-            MODEL_TYPE = "resnet"
+            # model_type = "efficientnet"
             # model, model_file_name = create_model(MODEL_TYPE)
             # logging.info(model.summary())
             # model, model_file_name = create_model_from_config(MODEL_TYPE)
-            model, model_file_name = create_model_from_config(MODEL_TYPE)
+            model_type = self.config.model_type
+            model, model_file_name = create_model_from_config(model_type)
             # Model summary
             logging.info(model.summary())
 
@@ -112,7 +113,7 @@ class TrainPipeline:
 
             history, metadata = self.model_training_service.train_and_validate(
                 model=model,
-                model_type=MODEL_TYPE,
+                model_type=model_type,
                 model_file_name=model_file_name,
                 train_dataset=train_dataset_final,
                 val_dataset=validation_dataset_final,
