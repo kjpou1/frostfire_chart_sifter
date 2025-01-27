@@ -12,6 +12,11 @@
   - [Installation](#installation)
   - [Usage](#usage)
     - [Command-Line Arguments](#command-line-arguments)
+      - [Subcommand: `ingest`](#subcommand-ingest)
+      - [Subcommand: `train`](#subcommand-train)
+      - [Argument Validation:](#argument-validation)
+    - [Debug Mode](#debug-mode)
+    - [Notes](#notes)
   - [Configuration](#configuration)
   - [Project Structure](#project-structure)
   - [Technologies Used](#technologies-used)
@@ -69,9 +74,9 @@
    ```
 
 3. **Train the Model**:
-   Use the command-line argument `train` to execute the full training pipeline.
+   Use the command-line argument `train` to execute the full training pipeline. Specify the model type using the `--model_type` flag.
    ```bash
-   python launch_host.py train --config path/to/train_config.json --debug
+   python launch_host.py train --config path/to/train_config.json --model_type mobile --debug
    ```
 
 4. **Run Inference**:
@@ -80,20 +85,64 @@
    curl -X POST "http://127.0.0.1:8008/predict" -H "Content-Type: application/json" -d '{"image_path": "path/to/image.png"}'
    ```
 
+---
+
 ### Command-Line Arguments
 The application supports subcommands for streamlined workflows:
-- **`ingest`**: Downloads and preprocesses datasets for training and evaluation.
-  - `--config`: Path to the ingestion configuration file (optional).
-  - `--debug`: Enable debug mode for verbose logging.
-- **`train`**: Executes the training pipeline.
-  - `--config`: Path to the training configuration file (optional).
-  - `--debug`: Enable debug mode for verbose logging.
 
-Example:
+#### Subcommand: `ingest`
+Downloads and preprocesses datasets for training and evaluation.
+
+| Argument      | Description                                      | Required | Default         |
+|---------------|--------------------------------------------------|----------|-----------------|
+| `--config`    | Path to the ingestion configuration file         | No       | None            |
+| `--debug`     | Enable debug mode for verbose logging            | No       | False           |
+
+**Example**:
 ```bash
 python launch_host.py ingest --config artifacts/config/ingestion.json --debug
 ```
 
+---
+
+#### Subcommand: `train`
+Executes the training pipeline.
+
+| Argument       | Description                                      | Required | Default         |
+|----------------|--------------------------------------------------|----------|-----------------|
+| `--config`     | Path to the training configuration file          | No       | None            |
+| `--model_type` | Specifies the model type to use for training     | Yes      | None (must be set) |
+| `--debug`      | Enable debug mode for verbose logging            | No       | False           |
+
+**Example**:
+```bash
+python launch_host.py train --config artifacts/config/train.json --model_type efficientnet --debug
+```
+
+#### Argument Validation:
+- If the `--model_type` is missing, the program will display an error and exit:
+  ```bash
+  Error: The --model_type argument is required for the train subcommand.
+  ```
+- The `--model_type` must match one of the models defined in the configuration file (e.g., `mobile`, `efficientnet`, `resnet`, etc.).
+
+---
+
+### Debug Mode
+Adding the `--debug` flag enables detailed logging, which is useful for troubleshooting during development or testing.
+
+**Example**:
+```bash
+python launch_host.py train --model_type resnet --debug
+```
+
+This will provide detailed logs, including dataset loading, model initialization, and training progress.
+
+---
+
+### Notes
+- Ensure the `--model_type` corresponds to a valid model defined in the `model_config.yaml` file.
+- The `--config` argument is optional. If not provided, the application will default to the configuration defined in the environment variables or `Config` class.
 ---
 
 ## Configuration
