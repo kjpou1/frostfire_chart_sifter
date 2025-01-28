@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import tensorflow as tf
 from dotenv import load_dotenv
@@ -113,18 +114,18 @@ class Config(metaclass=SingletonMeta):
         return self._MODEL_TYPE
 
     @model_type.setter
-    def model_type(self, value: str) -> None:
+    def model_type(self, value: Optional[str]) -> None:
         """
         Setter for the model type.
 
         Args:
-            value (str): The new model type to be set.
+            value (Optional[str]): The new model type to be set. Can be None.
 
         Raises:
-            ValueError: If the value is not a string.
+            ValueError: If the value is not a string when it is not None.
         """
-        if not isinstance(value, str):
-            raise ValueError("Model type must be a string.")
+        if value is not None and not isinstance(value, str):
+            raise ValueError("Model type must be a string or None.")
         self._MODEL_TYPE = value
 
     @classmethod
