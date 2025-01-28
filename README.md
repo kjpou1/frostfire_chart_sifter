@@ -10,6 +10,7 @@
   - [Features](#features)
   - [Why Frostfire\_Chart\_Sifter?](#why-frostfire_chart_sifter)
   - [Installation](#installation)
+  - [Project Structure](#project-structure)
   - [Usage](#usage)
     - [Command-Line Arguments](#command-line-arguments)
       - [Subcommand: `ingest`](#subcommand-ingest)
@@ -18,7 +19,14 @@
     - [Debug Mode](#debug-mode)
     - [Notes](#notes)
   - [Configuration](#configuration)
-  - [Project Structure](#project-structure)
+  - [Reports and Analysis](#reports-and-analysis)
+      - [**Purpose**](#purpose)
+    - [**Directory Structure**](#directory-structure)
+    - [**Artifacts Generated**](#artifacts-generated)
+    - [**Example Outputs**](#example-outputs)
+      - [**Accuracy Plot**](#accuracy-plot)
+      - [**Loss Plot**](#loss-plot)
+    - [**How to Use These Reports**](#how-to-use-these-reports)
   - [Model Configuration File Documentation](#model-configuration-file-documentation)
     - [Structure of the Configuration](#structure-of-the-configuration)
       - [**General Format**](#general-format)
@@ -33,7 +41,6 @@
     - [Key Considerations](#key-considerations)
     - [How to Use the Model Configuration](#how-to-use-the-model-configuration)
     - [Adding New Models](#adding-new-models)
-  - [This modular approach ensures easy scalability and maintainability for your project.](#this-modular-approach-ensures-easy-scalability-and-maintainability-for-your-project)
   - [Technologies Used](#technologies-used)
   - [Troubleshooting and Common Issues](#troubleshooting-and-common-issues)
     - [1. SSL Certificate Issues](#1-ssl-certificate-issues)
@@ -75,6 +82,26 @@
    ```bash
    pip install -r requirements.txt
    ```
+
+---
+
+## Project Structure
+```
+Frostfire_Chart_Sifter/
+│
+├── config/                   # Configurations (ex. model_config.yaml)
+├── artifacts/                # Generated data, models, logs, etc.
+├── src/                      # Source code
+│   ├── config/               # Configuration management
+│   ├── pipeline/             # Training and inference pipelines
+│   ├── services/             # Modular services for data ingestion, transformation, etc.
+│   ├── utils/                # Utility functions for common tasks
+│   └── models/               # Model definitions and configurations
+├── tests/                    # Automated tests
+├── requirements.txt          # Python dependencies
+├── README.md                 # Documentation
+└── setup.py                  # Package setup script
+```
 
 ---
 
@@ -175,25 +202,81 @@ Modify the default paths or use environment variables for customization:
 export BASE_DIR=/path/to/artifacts
 ```
 
+## Reports and Analysis
+
+#### **Purpose**
+The reports generated after training provide a detailed summary of the model's performance and key metrics. These artifacts help in analyzing model training, debugging, and comparing results across different runs.
+
 ---
 
-## Project Structure
+### **Directory Structure**
+The reports are stored in a directory named after the model type (e.g., `mobile`), under the base `reports` directory. Each training run creates the following files:
 ```
-Frostfire_Chart_Sifter/
-│
-├── config/                   # Configurations (ex. model_config.yaml)
-├── artifacts/                # Generated data, models, logs, etc.
-├── src/                      # Source code
-│   ├── config/               # Configuration management
-│   ├── pipeline/             # Training and inference pipelines
-│   ├── services/             # Modular services for data ingestion, transformation, etc.
-│   ├── utils/                # Utility functions for common tasks
-│   └── models/               # Model definitions and configurations
-├── tests/                    # Automated tests
-├── requirements.txt          # Python dependencies
-├── README.md                 # Documentation
-└── setup.py                  # Package setup script
+reports/
+└── <model_type>/
+    ├── plots/
+    │   ├── accuracy_plot_<run_id>.png
+    │   ├── loss_plot_<run_id>.png
+    └── training_summary_<run_id>.json
 ```
+
+---
+
+### **Artifacts Generated**
+1. **Plots**:
+    - **Accuracy Plot** (`accuracy_plot_<run_id>.png`):
+        - Shows the training and validation accuracy over epochs.
+        - **Purpose**: Visualizes how the model's accuracy improves or stabilizes during training.
+    - **Loss Plot** (`loss_plot_<run_id>.png`):
+        - Displays the training and validation loss over epochs.
+        - **Purpose**: Helps track overfitting (if validation loss diverges from training loss).
+
+2. **Training Summary**:
+    - A JSON file (`training_summary_<run_id>.json`) containing key metrics for the training run:
+      ```json
+      {
+          "run_id": "20250127_171226_c6b8dd01",
+          "model_type": "mobile",
+          "final_training_accuracy": 0.9013327360153198,
+          "final_validation_accuracy": 0.8569995164871216,
+          "final_training_loss": 0.26697471737861633,
+          "final_validation_loss": 0.3225937783718109,
+          "epochs": 28,
+          "best_epoch": 25,
+          "best_validation_accuracy": 0.8795785307884216
+      }
+      ```
+    - **Fields Explained**:
+      - `run_id`: Unique identifier for the training run.
+      - `model_type`: The model configuration used for the run.
+      - `final_training_accuracy` and `final_validation_accuracy`: Accuracy scores after the last epoch.
+      - `final_training_loss` and `final_validation_loss`: Loss values after the last epoch.
+      - `epochs`: Total epochs run.
+      - `best_epoch`: The epoch where the highest validation accuracy was achieved.
+      - `best_validation_accuracy`: The best validation accuracy during training.
+
+---
+
+### **Example Outputs**
+#### **Accuracy Plot**
+![Training and Validation Accuracy](attachment:/mnt/data/accuracy_plot_20250127_171226_c6b8dd01.png)
+
+#### **Loss Plot**
+![Training and Validation Loss](attachment:/mnt/data/loss_plot_20250127_171226_c6b8dd01.png)
+
+---
+
+### **How to Use These Reports**
+1. **Identify Model Performance**:
+    - Use the accuracy and loss plots to understand model behavior.
+    - Review the `training_summary` to extract key metrics like final accuracy, best epoch, and validation accuracy trends.
+2. **Compare Across Runs**:
+    - Compare JSON summaries for different `run_id`s to analyze the impact of hyperparameter tuning or data changes.
+3. **Debugging**:
+    - A diverging validation loss in the plots could indicate overfitting, prompting regularization adjustments.
+4. **Reproducibility**:
+    - The `run_id` and `model_type` ensure reproducibility of the training run and its configuration.
+
 ---
 
 ## Model Configuration File Documentation
@@ -399,7 +482,6 @@ new_model:
   file_name: efficientnetv2_classifier.keras
 ```
 
-This modular approach ensures easy scalability and maintainability for your project.
 ---
 
 ## Technologies Used
