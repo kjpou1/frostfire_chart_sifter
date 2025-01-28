@@ -109,7 +109,7 @@ class PredictPipeline:
                 ]
             elif self.output_labels == "binary":
                 results = [
-                    {"score": float(pred), "label": 0 if pred <= 0.5 else 1}
+                    {"score": float(pred), "label": 1 if pred <= 0.5 else 0}
                     for pred in preds
                 ]
             else:

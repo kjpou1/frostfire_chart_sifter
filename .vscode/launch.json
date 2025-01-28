@@ -40,6 +40,13 @@
             "program": "predict_app.py",
             "args": [],
         },
+        {
+            "name": "FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "predict_rest_api2.py",
+            "args": [],
+        },
 
     ]
 }
