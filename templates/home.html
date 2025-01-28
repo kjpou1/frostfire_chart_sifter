@@ -3,154 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Exam Performance Indicator</title>
+    <title>Frostfire Chart Sifter</title>
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            line-height: 1.6;
         }
 
-        h1, h2 {
+        h1 {
             text-align: center;
+            color: #4CAF50;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+        p {
+            text-align: center;
+            font-size: 1.2em;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-group input,
-        .form-group select {
+        /* Drag-and-Drop Area */
+        .drop-area {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .form-group input[type="submit"] {
-            background-color: #007bff;
-            color: white;
-            border: none;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            text-align: center;
+            background-color: #f9f9f9;
             cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
 
-        .form-group input[type="submit"]:hover {
-            background-color: #0056b3;
+        .drop-area.dragover {
+            border-color: #4CAF50;
+            background-color: #e9f9e9;
         }
 
-        .alert {
-            color: red;
+        /* Button Styles */
+        button {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 1em;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Results Section */
+        .results {
+            margin-top: 30px;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .image-preview div {
+            text-align: center;
+            max-width: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .label {
             font-weight: bold;
-            margin-top: 20px;
+            font-size: 1.2em;
         }
 
-        .result {
+        .label.chart {
             color: green;
-            font-weight: bold;
-            margin-top: 20px;
+        }
+
+        .label.non-chart {
+            color: red;
+        }
+
+        .confidence {
+            font-size: 0.9em;
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <h1>Student Exam Performance Indicator</h1>
-    <h2>Student Exam Performance Prediction</h2>
-    <div class="container">
-        <form action="{{ url_for('predict_datapoint') }}" method="post">
-            <!-- Gender -->
-            <div class="form-group">
-                <label for="gender">Gender</label>
-                <select name="gender" id="gender" required>
-                    <option selected disabled value="">Select your Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
+    <!-- Page Header -->
+    <h1>Frostfire Chart Sifter</h1>
+    <p>Upload images to determine if they are <strong>charts</strong> or <strong>non-charts</strong>.</p>
 
-            <!-- Race or Ethnicity -->
-            <div class="form-group">
-                <label for="ethnicity">Race or Ethnicity</label>
-                <select name="ethnicity" id="ethnicity" required>
-                    <option selected disabled value="">Select Ethnicity</option>
-                    <option value="group A">Group A</option>
-                    <option value="group B">Group B</option>
-                    <option value="group C">Group C</option>
-                    <option value="group D">Group D</option>
-                    <option value="group E">Group E</option>
-                </select>
-            </div>
+    <!-- File Upload Form -->
+    <form id="upload-form" method="POST" action="/sift_images" enctype="multipart/form-data">
+        <div id="drop-area" class="drop-area">
+            <p>Drag and drop images here, or click to select files</p>
+            <input type="file" name="images" id="file-input" accept="image/png, image/jpeg" multiple style="display: none;">
+        </div>
+        <button type="submit">Classify Images</button>
+    </form>
 
-            <!-- Parental Education -->
-            <div class="form-group">
-                <label for="parental_level_of_education">Parental Level of Education</label>
-                <select name="parental_level_of_education" id="parental_level_of_education" required>
-                    <option selected disabled value="">Select Parent Education</option>
-                    <option value="associate's degree">Associate's degree</option>
-                    <option value="bachelor's degree">Bachelor's degree</option>
-                    <option value="high school">High school</option>
-                    <option value="master's degree">Master's degree</option>
-                    <option value="some college">Some college</option>
-                    <option value="some high school">Some high school</option>
-                </select>
-            </div>
+    <!-- Results Section -->
+    <div class="results" id="results"></div>
 
-            <!-- Lunch -->
-            <div class="form-group">
-                <label for="lunch">Lunch Type</label>
-                <select name="lunch" id="lunch" required>
-                    <option selected disabled value="">Select Lunch Type</option>
-                    <option value="free/reduced">Free/Reduced</option>
-                    <option value="standard">Standard</option>
-                </select>
-            </div>
+    <script>
+        // Drag-and-Drop Events
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const resultsDiv = document.getElementById('results');
 
-            <!-- Test Preparation -->
-            <div class="form-group">
-                <label for="test_preparation_course">Test Preparation Course</label>
-                <select name="test_preparation_course" id="test_preparation_course" required>
-                    <option selected disabled value="">Select Test Preparation Course</option>
-                    <option value="none">None</option>
-                    <option value="completed">Completed</option>
-                </select>
-            </div>
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
 
-            <!-- Reading and Writing Scores -->
-            <div class="form-group">
-                <label for="reading_score">Reading Score</label>
-                <input type="number" name="reading_score" id="reading_score" placeholder="Enter your Reading Score (0-100)" min="0" max="100" required>
-            </div>
-            <div class="form-group">
-                <label for="writing_score">Writing Score</label>
-                <input type="number" name="writing_score" id="writing_score" placeholder="Enter your Writing Score (0-100)" min="0" max="100" required>
-            </div>
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
 
-            <!-- Submit Button -->
-            <div class="form-group">
-                <input type="submit" value="Predict your Maths Score">
-            </div>
-        </form>
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+            }
+        });
 
-        <!-- Error Handling -->
-        {% if error %}
-        <div class="alert">{{ error }}</div>
-        {% endif %}
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-        <!-- Prediction Results -->
-        {% if results %}
-        <div class="result">The Prediction is: {{ results }}</div>
-        {% endif %}
-    </div>
+        // Form Submission and Fetch
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const response = await fetch('/sift_images', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const results = await response.json();
+                console.log(results); // For debugging
+
+                resultsDiv.innerHTML = '<h2>Prediction Results</h2>';
+                const previewDiv = document.createElement('div');
+                previewDiv.classList.add('image-preview');
+
+                results.forEach((result) => {
+                    const imageDiv = document.createElement('div');
+                    imageDiv.innerHTML = `
+                        <img src="${result.file_path}" alt="${result.file_path}">
+                        <p class="label ${result.label}">${result.label}</p>
+                        <p class="confidence">Score: ${(result.score).toFixed(2)}%</p>
+                    `;
+                    previewDiv.appendChild(imageDiv);
+                });
+                resultsDiv.appendChild(previewDiv);
+            } else {
+                resultsDiv.innerHTML = `<p style="color: red;">An error occurred while processing the images.</p>`;
+            }
+        });
+    </script>
 </body>
 </html>

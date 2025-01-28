@@ -33,6 +33,13 @@
             "program": "launch_host.py",
             "args": ["train", "--model_type=mobile"],
         },
+        {
+            "name": "Flask App",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "predict_app.py",
+            "args": [],
+        },
 
     ]
 }

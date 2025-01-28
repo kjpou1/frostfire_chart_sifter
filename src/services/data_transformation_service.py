@@ -1,5 +1,6 @@
 import sys
 
+import numpy as np
 import tensorflow as tf
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -41,7 +42,7 @@ class DataTransformationService:
             tf.data.Dataset: A normalized tf.data.Dataset with pixel values scaled to [0, 1].
         """
         try:
-            logging.info("Normalizing dataset using Rescaling layer...")
+            logging.info("Normalizing tf.data.Dataset...")
             normalized_dataset = dataset.map(
                 lambda image, label: (self.rescale_layer(image), label),
                 num_parallel_calls=tf.data.AUTOTUNE,
@@ -49,7 +50,62 @@ class DataTransformationService:
             logging.info("Dataset normalization completed successfully.")
             return normalized_dataset
         except Exception as e:
-            logging.error("Error occurred during dataset normalization: %s", str(e))
+            logging.error(
+                "Error occurred during tf.data.Dataset normalization: %s", str(e)
+            )
+            raise CustomException(e, sys) from e
+
+    def normalize_numpy_array(self, array):
+        """
+        Normalize a NumPy array by scaling pixel values to [0, 1].
+
+        Args:
+            array (np.ndarray): The NumPy array to normalize.
+
+        Returns:
+            np.ndarray: A normalized NumPy array.
+        """
+        try:
+            logging.info("Normalizing NumPy array...")
+            if not isinstance(array, np.ndarray):
+                raise ValueError("Input must be a NumPy array.")
+            normalized_array = array / 255.0
+            logging.info("NumPy array normalization completed successfully.")
+            return normalized_array
+        except Exception as e:
+            logging.error("Error occurred during NumPy array normalization: %s", str(e))
+            raise CustomException(e, sys) from e
+
+    def normalize(self, data):
+        """
+        Normalize input data, which can be either a tf.data.Dataset or a NumPy array.
+
+        Args:
+            data (tf.data.Dataset or np.ndarray): The data to normalize.
+
+        Returns:
+            Normalized data in the same type as the input.
+        """
+        try:
+            if isinstance(data, tf.data.Dataset):
+                logging.info(
+                    "Input is a tf.data.Dataset. Normalizing using Rescaling layer..."
+                )
+                return self.normalize_dataset(data)
+            elif isinstance(data, np.ndarray):
+                logging.info("Input is a NumPy array. Normalizing directly...")
+                return self.normalize_numpy_array(data)
+            elif isinstance(data, list) and all(
+                isinstance(x, np.ndarray) for x in data
+            ):
+                logging.info(
+                    "Input is a list of NumPy arrays. Normalizing each array..."
+                )
+                return [self.normalize_numpy_array(x) for x in data]
+            else:
+                raise ValueError("Unsupported input type for normalization.")
+        except Exception as e:
+            logging.error("Error occurred during normalization: %s", str(e))
             raise CustomException(e, sys) from e
 
     def initiate_data_transformation(self, train_dataset, val_dataset, test_dataset):
