@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from src.config.config import Config
 from src.utils.file_utils import save_training_artifacts
+from src.utils.report_utils import save_training_report
 
 
 class ModelTrainingService:
@@ -66,6 +67,10 @@ class ModelTrainingService:
             }
 
             save_training_artifacts(history, metadata, model_type, run_id)
+
+            # Step 3: Generate Reports
+            save_training_report(history, model_type, run_id)
+            logging.info("Pipeline reports generated successfully.")
 
             self.logger.info("Model training completed successfully.")
             return history, metadata
