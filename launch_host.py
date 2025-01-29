@@ -32,6 +32,9 @@ async def launch_async():
         args = CommandLine.parse_arguments()
         logging.info("Launching host with arguments: %s", args)
 
+        if args.debug:
+            LoggerManager.set_log_level(logging.debug)
+
         # Create an instance of Host with parsed arguments
         instance = Host(args)
 
