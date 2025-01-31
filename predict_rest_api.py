@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 import tensorflow as tf
 import uvicorn
 from fastapi import Depends, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from src.exception import CustomException
 from src.models.image_payload import ImagePayload
@@ -58,12 +60,28 @@ class Host:
         self.app = FastAPI(
             title="Frostfire Chart Sifter API", version="1.0", lifespan=lifespan
         )
+        # Enable CORS
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+            allow_headers=["*"],  # Allow all headers
+        )
+
         self.setup_routes()
 
     def setup_routes(self):
         """
         Set up FastAPI routes.
         """
+
+        @self.app.options("/sift_images/")
+        async def options_handler():
+            """
+            Handle preflight OPTIONS request for CORS.
+            """
+            return JSONResponse(content={}, status_code=200)
 
         @self.app.post("/sift_images/")
         async def detect_charts(

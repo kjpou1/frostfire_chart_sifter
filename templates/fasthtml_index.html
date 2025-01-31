@@ -3,139 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastHTML Prediction Interface</title>
+    <title>Frostfire Chart Sifter</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .form-group button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
+            font-family: 'Arial', sans-serif;
+            background-color: #1e1e1e;
             color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { color: #4CAF50; }
+        .drop-area {
+            width: 60%;
+            margin: auto;
+            padding: 30px;
+            border: 2px dashed #4CAF50;
+            border-radius: 10px;
+            background-color: #292929;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .drop-area.dragover {
+            border-color: #67d467;
+            background-color: #3e3e3e;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 15px;
+            font-size: 1em;
+            color: white;
+            background-color: #4CAF50;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
             border: none;
-            border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
         }
 
-        .form-group button:hover {
-            background-color: #0056b3;
+        .button:hover { background-color: #45a049; }
+        .preview-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
+        .preview { width: 120px; text-align: center; }
+        .preview img { max-width: 100px; border-radius: 5px; border: 2px solid #4CAF50; }
+        .results-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; }
+        .result-box {
+            background-color: #292929;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+            width: 150px;
         }
+        .result-box img { max-width: 100px; border-radius: 5px; }
+        .label { font-weight: bold; font-size: 1.2em; }
+        .label.chart { color: #67d467; }
+        .label.non-chart { color: #ff4f4f; }
+        .confidence { font-size: 0.9em; color: #bbb; }
     </style>
 </head>
 <body>
-    <h1>FastHTML Prediction Interface</h1>
-    <div class="container">
-        <form action="/submit" method="post">
-            <!-- Gender -->
-            <div class="form-group">
-                <label for="gender">Gender:</label>
-                <select id="gender" name="gender" required>
-                    <option selected disabled value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
+    <h1>Frostfire Chart Sifter</h1>
+    <p>Upload images to determine if they are <strong>charts</strong> or <strong>non-charts</strong>.</p>
 
-            <!-- Race/Ethnicity -->
-            <div class="form-group">
-                <label for="ethnicity">Race/Ethnicity:</label>
-                <select id="ethnicity" name="ethnicity" required>
-                    <option selected disabled value="">Select Ethnicity</option>
-                    <option value="group A">Group A</option>
-                    <option value="group B">Group B</option>
-                    <option value="group C">Group C</option>
-                    <option value="group D">Group D</option>
-                    <option value="group E">Group E</option>
-                </select>
-            </div>
-
-            <!-- Parental Education -->
-            <div class="form-group">
-                <label for="parental_level_of_education">Parental Education:</label>
-                <select id="parental_level_of_education" name="parental_level_of_education" required>
-                    <option selected disabled value="">Select Education</option>
-                    <option value="high school">High School</option>
-                    <option value="associate's degree">Associate's Degree</option>
-                    <option value="bachelor's degree">Bachelor's Degree</option>
-                    <option value="master's degree">Master's Degree</option>
-                    <option value="some college">Some College</option>
-                    <option value="some high school">Some High School</option>
-                </select>
-            </div>
-
-            <!-- Lunch -->
-            <div class="form-group">
-                <label for="lunch">Lunch:</label>
-                <select id="lunch" name="lunch" required>
-                    <option selected disabled value="">Select Lunch Type</option>
-                    <option value="standard">Standard</option>
-                    <option value="free/reduced">Free/Reduced</option>
-                </select>
-            </div>
-
-            <!-- Test Preparation -->
-            <div class="form-group">
-                <label for="test_preparation_course">Test Prep:</label>
-                <select id="test_preparation_course" name="test_preparation_course" required>
-                    <option selected disabled value="">Select Test Prep</option>
-                    <option value="none">None</option>
-                    <option value="completed">Completed</option>
-                </select>
-            </div>
-
-            <!-- Reading and Writing Scores -->
-            <div class="form-group">
-                <label for="reading_score">Reading Score:</label>
-                <input type="number" id="reading_score" name="reading_score" min="0" max="100" placeholder="Enter Reading Score" required >
-            </div>
-            <div class="form-group">
-                <label for="writing_score">Writing Score:</label>
-                <input type="number" id="writing_score" name="writing_score" min="0" max="100" placeholder="Enter Writing Score" required>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="form-group">
-                <button type="submit">Submit</button>
-            </div>
-        </form>
+    <div class="drop-area" id="drop-area">
+        <p>Drag & Drop images here or click to select</p>
+        <input type="file" id="file-input" accept="image/png, image/jpeg" multiple hidden>
     </div>
+    <button id="classify-button" class="button">Classify Images</button>
+
+    <div class="preview-container" id="preview"></div>
+    <div class="results-container" id="results"></div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const classifyButton = document.getElementById('classify-button');
+        const previewContainer = document.getElementById('preview');
+        const resultsContainer = document.getElementById('results');
+        let base64Images = [];
+
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            convertImagesToBase64(fileInput.files);
+        });
+
+        dropArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', () => convertImagesToBase64(fileInput.files));
+
+        function convertImagesToBase64(files) {
+            base64Images = [];
+            previewContainer.innerHTML = '';
+            resultsContainer.innerHTML = '';
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    base64Images.push(e.target.result.split(',')[1]); // Extract Base64 data
+                    const div = document.createElement('div');
+                    div.classList.add('preview');
+                    div.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image"><p>${file.name}</p>`;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        classifyButton.addEventListener('click', async () => {
+            if (base64Images.length === 0) {
+                alert("Please upload at least one image.");
+                return;
+            }
+
+            const payload = { "payload": { "data": base64Images } };
+            
+            try {
+                const response = await fetch("http://localhost:8078/sift_images/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error processing images.");
+                }
+
+                const results = await response.json();
+                displayResults(results.data);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        function displayResults(results) {
+            resultsContainer.innerHTML = '';
+            results.forEach((result, index) => {
+                const imageDiv = document.createElement('div');
+                imageDiv.classList.add('result-box');
+                imageDiv.innerHTML = `
+                    <p><strong class="label ${result.is_chart ? 'chart' : 'non-chart'}">
+                        ${result.is_chart ? 'Chart' : 'Non-Chart'}
+                    </strong></p>
+                    <p class="confidence">Index: ${result.index}</p>
+                `;
+                resultsContainer.appendChild(imageDiv);
+            });
+        }
+    </script>
 </body>
 </html>
