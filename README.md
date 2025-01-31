@@ -18,7 +18,7 @@ By providing a flexible and scalable framework for model training, **Frostfire_C
   - [Purpose](#purpose)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
-  - [Why Frostfire\_Chart\_Sifter?](#why-frostfire_chart_sifter)
+  - [Datasets](#datasets)
   - [Installation](#installation)
   - [Project Structure](#project-structure)
   - [Usage](#usage)
@@ -68,12 +68,17 @@ By providing a flexible and scalable framework for model training, **Frostfire_C
 - **Extensive Dataset Support**: Processes diverse datasets, including financial charts and unrelated images, ensuring robustness.
 - **Performance Optimization**: Utilizes caching, shuffling, and prefetching for faster training and evaluation.
 
----
+## Datasets
 
-## Why Frostfire_Chart_Sifter?
-1. **Efficiency**: Automates manual chart identification, saving time and effort.
-2. **Scalability**: Customizable architecture adapts to different datasets and models.
-3. **Accuracy**: Employs cutting-edge CNN techniques to ensure high classification precision.
+Frostfire_Chart_Sifter leverages publicly available datasets from **Hugging Face** to facilitate model training. A huge thanks to **[Stephan Akkerman](https://huggingface.co/StephanAkkerman)** for collecting these foundational datasets:
+
+| Dataset Name | Description | Hugging Face URL |
+|-------------|-------------|------------------|
+| **Crypto Charts** | A collection of cryptocurrency-related charts. Useful for training models to recognize crypto price movements. | [StephanAkkerman/crypto-charts](https://huggingface.co/datasets/StephanAkkerman/crypto-charts) |
+| **Stock Charts** | A dataset containing various stock market charts for training chart detection models. | [StephanAkkerman/stock-charts](https://huggingface.co/datasets/StephanAkkerman/stock-charts) |
+| **Fintwit Images** | A collection of financial images sourced from Twitter, containing a mix of charts and non-chart financial visuals. | [StephanAkkerman/fintwit-images](https://huggingface.co/datasets/StephanAkkerman/fintwit-images) |
+
+These datasets serve as the foundation for training the models, enabling it to distinguish between charts and non-charts effectively. Users can also fine-tune models with their own datasets for enhanced performance.
 
 ---
 
