@@ -2,10 +2,20 @@
 
 **Frostfire_Chart_Sifter** is a state-of-the-art machine learning project that classifies images into **charts** or **non-charts** using advanced Convolutional Neural Networks (CNNs). Designed for financial engineers, traders, and developers, it automates chart detection and integrates seamlessly into data workflows.
 
+## Purpose
+
+The **Frostfire_Chart_Sifter** was developed to allow users to **train machine learning models** for classifying images as **charts** or **non-charts**. Instead of being a fixed detection tool, this project provides the infrastructure to build, fine-tune, and deploy models that can be integrated into larger financial and analytical workflows.
+
+A key application of the system is in automating the process of collecting and labeling stock charts for future analysis. Users can train models on their own datasets, optimizing them for specific use cases and improving detection accuracy over time. Once trained, these models can be deployed into automated workflows for seamless chart identification.
+
+By providing a flexible and scalable framework for model training, **Frostfire_Chart_Sifter** empowers financial professionals, traders, and researchers to develop their own **custom classification models**, making it an essential component of a data-driven stock analysis pipeline.
+
+
 ---
 
 ## Table of Contents
 - [Frostfire\_Chart\_Sifter](#frostfire_chart_sifter)
+  - [Purpose](#purpose)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Why Frostfire\_Chart\_Sifter?](#why-frostfire_chart_sifter)
@@ -20,7 +30,7 @@
     - [Notes](#notes)
   - [Configuration](#configuration)
   - [Reports and Analysis](#reports-and-analysis)
-      - [**Purpose**](#purpose)
+      - [**Purpose**](#purpose-1)
     - [**Directory Structure**](#directory-structure)
     - [**Artifacts Generated**](#artifacts-generated)
     - [**Example Outputs**](#example-outputs)
